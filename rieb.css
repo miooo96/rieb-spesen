@@ -1,0 +1,1493 @@
+/* ======================================================================
+   rieb.css - die neue Oberflaeche "Rieb Spesen" (Entwurf "Nacht & Blatt",
+   Fassung 3, von Mirko am 07.10.2026 abgestimmt).
+
+   ENTSTANDEN am 08.10.2026 aus Neues Design/entwurf/quelle.html per
+   rieb-css-uebernehmen.py (einmalig). AB JETZT WIRD DIESE DATEI VON HAND
+   GEPFLEGT - das Skript nicht erneut laufen lassen, es wuerde alle
+   Anpassungen unten ueberschreiben.
+
+   Jede Regel steht im Rahmen #rieb: Die alte Oberflaeche liegt weiter im
+   Dokument (der PDF-Ausdruck fotografiert den alten Vordruck #formular ab -
+   er darf nicht ausgeblendet werden) und hat eigene Regeln mit denselben
+   Klassennamen. Animationen heissen "r-...", aus demselben Grund.
+
+   App und Browser: Unterschiede NUR nach Breite (@media), nie nach
+   Installationsstatus (CLAUDE.md, Mirko 22.09.2026).
+   ====================================================================== */
+
+@font-face{font-family:"Geist";src:url("schrift/Geist-Variable.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:block}
+
+/* VOR DEM ERSTEN BILD (08.10.2026). Mirko: "beim hard reset sehe ich immer
+   noch kurz das [Firma] bild, wieso". Nachgestellt: Das alte Startbild
+   (#splashScreen - frueheres Nachtfoto, Jahreszeile, Namenszeile mit Firmenname)
+   steht ganz oben im Dokument und wird sofort gezeichnet; rieb.js steht am
+   Ende der Seite und blendet es erst dann aus. Bei leerem Zwischenspeicher
+   war es dazwischen zu sehen.
+   Darum liegt bis zum Aufbau der neuen Oberflaeche (rieb.js setzt
+   html.rieb-bereit) nur der dunkle Grund ueber allem. Diese Datei steht im
+   <head> und gilt damit schon vor dem ersten Bild.
+   Notfall: Laedt rieb.js nicht, gibt der Vorhang die alte Oberflaeche nach
+   4 s trotzdem frei - das alte Startbild bleibt auch dann aus. */
+html:not(.rieb-bereit),html:not(.rieb-bereit) body{background:#0A0C10}
+html:not(.rieb-bereit) body::after{content:"";position:fixed;inset:0;z-index:2147483647;background:#0A0C10;pointer-events:none;
+  animation:r-vorhang-notfall 0s 4s forwards}
+@keyframes r-vorhang-notfall{to{visibility:hidden}}
+/* Weißer Blitz beim Öffnen eines Werkzeugs (Mirko 15.10.2026, Web-App): Beim Übergang (View Transition) sind
+   altes und neues Bild kurz halb durchsichtig - dahinter lag die hellgraue Grundfläche der alten Oberfläche
+   (body #EEF0F4), auch im dunklen Design. Gemessen: Bildmitte nach 120 ms Helligkeit 191 statt dunkel.
+   Im dunklen Design deshalb dieselbe Grundfarbe wie Ladebildschirm und --n1. Nur am Bildschirm (Druck unberührt). */
+@media screen{html.rieb-bereit:has(#rieb.dunkel),html.rieb-bereit:has(#rieb.dunkel) body{background:#0A0C10}}
+html:not(.rieb-bereit) #splashScreen{display:none}
+#rieb{
+  --n0:#06070A; --n1:#0A0C10; --n2:#10131A; --n3:#171B23;
+  --n-rand:rgba(255,255,255,.08); --n-rand2:rgba(255,255,255,.14);
+  --n-text:#F2F4F7; --n-text2:#A0A8B4; --n-text3:#6F7785;
+  --eis:#7DD3FC; --eis-satt:#38BDF8; --eis-tief:#0369A1;
+  --t0:#EEF0F4; --t1:#FFFFFF; --t-rand:#E1E5EB; --tinte:#0E1116; --tinte2:#4F5968; --tinte3:#7D8796;
+  --urlaub:#15803D; --urlaub-bg:#DCFCE7; --krank:#B91C1C; --krank-bg:#FEE2E2;
+  --frei:#475569; --frei-bg:#E2E8F0; --sonder:#6D28D9; --sonder-bg:#EDE9FE;
+  --eltern:#A16207; --eltern-bg:#FEF3C7; --feier:#0369A1; --feier-bg:#E0F2FE;
+  --sanft:cubic-bezier(.22,1,.36,1);
+  --feder:linear(0, .097 5%, .298 10%, .514 15%, .7 20%, .839 25%, .933 30%, .989 35%, 1.017 40%, 1.027 45%, 1.028 50%, 1.023 55%, 1.017 60%, 1.006 70%, 1.001 80%, 1);
+  --oben:env(safe-area-inset-top,0px); --unten:env(safe-area-inset-bottom,0px);
+}
+#rieb *,#rieb *::before,#rieb *::after{box-sizing:border-box}
+#rieb{font-family:"Geist",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--n-text);
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;-webkit-tap-highlight-color:transparent}
+#rieb button{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cursor:pointer;text-align:left}
+#rieb input,#rieb select{font:inherit}
+#rieb :focus-visible{outline:2px solid var(--eis-satt);outline-offset:3px}
+#rieb svg{display:block}
+#rieb .ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+#rieb #korn{position:fixed;inset:0;z-index:90;pointer-events:none;opacity:.06;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .55 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>")}
+#rieb .zahl{display:inline-flex;align-items:baseline;width:fit-content;font-weight:600;letter-spacing:-.05em;line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap}
+#rieb .zahl .z-ganz,#rieb .zahl .z-rest{display:inline-flex;align-items:baseline}
+#rieb .zahl .z-rest{font-size:.4em;letter-spacing:-.01em;color:var(--n-text2);margin-left:.08em;font-weight:520}
+#rieb .rz{position:relative;display:inline-block;clip-path:inset(0);line-height:1}
+#rieb .rz-platz{visibility:hidden}
+#rieb .rz-s{position:absolute;left:0;top:0;width:100%;display:flex;flex-direction:column;
+  transform:translateY(calc(var(--z,0) * -1em));transition:transform 1.15s var(--feder);transition-delay:var(--d,0ms)}
+#rieb .rz-s span{display:block;height:1em;line-height:1;text-align:center}
+#rieb .fz{line-height:1}
+#rieb .screen{position:fixed;inset:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;display:none}
+#rieb .screen.aktiv{display:block}
+#rieb #s-start{background:var(--n1)}
+#rieb #s-start::before{content:"";position:fixed;inset:-20%;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(38% 32% at 84% 10%, rgba(56,189,248,.22), transparent 70%),
+    radial-gradient(42% 38% at 8% 92%, rgba(99,102,241,.17), transparent 70%),
+    radial-gradient(28% 26% at 46% 46%, rgba(125,211,252,.05), transparent 70%);
+  animation:r-drift 28s ease-in-out infinite alternate}
+@keyframes r-drift{to{transform:translate3d(-4%,3%,0) scale(1.07)}}
+#rieb .start-innen{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:calc(var(--oben) + 14px) 16px calc(var(--unten) + 30px)}
+#rieb .start-kopf{display:flex;align-items:center;justify-content:space-between;height:44px}
+#rieb .marke{display:flex;align-items:center;gap:10px}
+#rieb .marke .zeichen{width:30px;height:30px}
+#rieb .wortmarke{font-size:18px;font-weight:640;letter-spacing:-.025em;width:fit-content}
+#rieb .raffer-marke{font-size:11px;font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:var(--eis);background:rgba(125,211,252,.12);padding:4px 9px;border-radius:999px;opacity:0;transition:opacity .3s}
+#rieb .raffer-marke.an{opacity:1}
+#rieb .gruss-zeile{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin:28px 4px 22px}
+#rieb .gruss{font-size:33px;line-height:1.06;letter-spacing:-.04em;font-weight:560;margin:0}
+#rieb .gruss .leise{color:var(--n-text3)}
+/* Spruch des Tages unter dem Gruss (10.10.2026) - eine ruhige Zeile */
+#rieb .gruss-spruch{margin:-10px 4px 22px;font-size:15px;line-height:1.4;font-weight:500;color:var(--n-text2);max-width:36em;text-wrap:pretty}
+#rieb .uhr{text-align:right;flex:none}
+#rieb .uhr-zeit{display:flex;align-items:flex-start;justify-content:flex-end;font-size:42px;font-weight:260;letter-spacing:-.02em;line-height:.9;
+  font-variant-numeric:tabular-nums;color:#E6F6FF;text-shadow:0 0 22px rgba(56,189,248,.5),0 0 2px rgba(125,211,252,.4)}
+#rieb .uhr-zeit .dp{animation:r-blinken 1s steps(1) infinite;margin:0 .02em}
+@keyframes r-blinken{50%{opacity:.2}}
+#rieb .uhr-s{font-size:14px;font-weight:520;color:var(--eis);margin-left:5px;margin-top:3px;text-shadow:none;min-width:18px;text-align:left;letter-spacing:0}
+#rieb .uhr-datum{font-size:12px;color:var(--n-text2);margin-top:8px;font-variant-numeric:tabular-nums}
+#rieb .bento{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+#rieb .kachel{position:relative;isolation:isolate;display:flex;flex-direction:column;gap:10px;padding:18px;border-radius:28px;min-height:96px;color:var(--n-text);width:100%;
+  transition:transform .3s var(--sanft)}
+#rieb .kachel:active{transform:scale(.975)}
+#rieb .k-grund{position:absolute;inset:0;border-radius:inherit;z-index:-1;
+  background:linear-gradient(180deg,rgba(255,255,255,.078),rgba(255,255,255,.026));
+  box-shadow:inset 0 0 0 1px var(--n-rand),inset 0 1px 0 rgba(255,255,255,.07)}
+#rieb .k-spesen .k-grund{background:
+    radial-gradient(70% 60% at 90% 0%, rgba(56,189,248,.26), transparent 70%),
+    linear-gradient(180deg,rgba(255,255,255,.085),rgba(255,255,255,.03))}
+@media (hover:hover){
+#rieb .kachel::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:-1;opacity:0;transition:opacity .35s;
+    background:radial-gradient(260px circle at var(--mx,50%) var(--my,50%),rgba(125,211,252,.13),transparent 62%)}
+#rieb .kachel:hover::after{opacity:1}
+#rieb .kachel:hover{transform:translateY(-2px)}
+}
+#rieb .k-kopf{display:flex;align-items:center;gap:10px}
+#rieb .k-ic{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;flex:none;
+  background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px var(--n-rand);color:var(--eis)}
+#rieb .k-ic .ic{width:19px;height:19px}
+#rieb .k-titel,#rieb .b-titel{font-size:17px;font-weight:610;letter-spacing:-.015em;width:fit-content;line-height:1.2}
+#rieb .k-meta{margin-left:auto;font-size:12.5px;color:var(--n-text2);font-weight:500}
+#rieb .k-unter{font-size:13px;color:var(--n-text2)}
+#rieb .k-spesen{grid-column:1/-1;min-height:226px;justify-content:space-between}
+#rieb .k-spesen .zahl{font-size:58px}
+#rieb .k-spesen .k-mitte{display:flex;flex-direction:column;gap:9px;margin-top:2px}
+#rieb .k-urlaub,#rieb .k-jahr{min-height:176px;justify-content:space-between}
+#rieb .k-urlaub .zahl{font-size:40px}
+#rieb .k-jahr .zahl{font-size:27px}
+#rieb .k-oben{display:flex;justify-content:space-between;align-items:flex-start}
+#rieb .ring{flex:none}
+#rieb .ring-wert{animation:r-ring-auf 1.3s .15s var(--sanft) both}
+@keyframes r-ring-auf{from{stroke-dashoffset:var(--u)}}
+#rieb .funken{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;height:34px;align-items:end}
+#rieb .funken i{display:block;border-radius:2px;background:rgba(255,255,255,.3);transform-origin:bottom}
+#rieb .funken.erscheint i{animation:r-seg-auf .8s var(--sanft) both;animation-delay:calc(var(--i)*35ms + .2s)}
+#rieb .funken i.jetzt{background:var(--eis);box-shadow:0 0 10px rgba(56,189,248,.5)}
+#rieb .funken i.spaeter{background:rgba(255,255,255,.07)}
+#rieb .mini-reihe{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+#rieb .k-mini{min-height:86px;align-items:center;justify-content:center;text-align:center;gap:9px;padding:14px 6px;border-radius:24px}
+#rieb .k-mini .k-titel{font-size:13.5px;font-weight:580;line-height:1.25}
+#rieb .start-fuss{margin:24px 0 0;text-align:center;font-size:12px;color:var(--n-text3);line-height:1.6}
+#rieb .k-heute{grid-column:1/-1;min-height:0;padding:15px 18px 16px;gap:11px;border-radius:24px}
+#rieb .h-kopf{display:flex;align-items:center;gap:10px;font-size:11.5px;font-weight:660;letter-spacing:.09em;text-transform:uppercase;color:var(--n-text2)}
+#rieb .live-punkt{width:8px;height:8px;border-radius:50%;background:var(--eis);flex:none;animation:r-live 1.8s ease-out infinite}
+@keyframes r-live{0%{box-shadow:0 0 0 0 rgba(125,211,252,.6)}100%{box-shadow:0 0 0 10px rgba(125,211,252,0)}}
+#rieb .h-kopf .rechts{margin-left:auto;letter-spacing:0;text-transform:none;font-weight:520;color:var(--n-text3);font-size:12.5px}
+#rieb .h-band{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;font-variant-numeric:tabular-nums;font-size:15px;font-weight:620;letter-spacing:-.01em}
+#rieb .h-bahn{position:relative;height:6px;border-radius:3px;background:rgba(255,255,255,.09)}
+#rieb .h-fuell{position:absolute;left:0;top:0;bottom:0;border-radius:3px;width:calc(var(--p,0)*100%);background:linear-gradient(90deg,rgba(125,211,252,.25),#38BDF8)}
+#rieb .h-jetzt{position:absolute;top:50%;left:calc(var(--p,0)*100%);width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#E6F6FF;
+  box-shadow:0 0 0 4px rgba(56,189,248,.22),0 0 16px rgba(56,189,248,.85)}
+#rieb .h-fuss{font-size:12.5px;color:var(--n-text2);display:flex;justify-content:space-between;gap:10px;white-space:nowrap}
+#rieb .h-fuss span:first-child{overflow:hidden;text-overflow:ellipsis;min-width:0}
+#rieb .h-fuss .aendern{color:var(--n-text3);flex:none}
+#rieb .h-fuss b{color:var(--eis);font-weight:620}
+#rieb .k-heute.vor .h-jetzt{opacity:.5}
+#rieb .k-heute.fertig .h-fuell{background:linear-gradient(90deg,rgba(74,222,128,.35),#22C55E)}
+#rieb .k-heute.fertig .h-jetzt{display:none}
+#rieb .k-heute.fertig .live-punkt{background:#4ADE80;animation:none;box-shadow:0 0 10px rgba(74,222,128,.6)}
+#rieb .k-heute.frei .h-band{display:none}
+#rieb .k-heute.frei .live-punkt{background:var(--n-text3);animation:none}
+#rieb .k-heute.blitz .k-grund{animation:r-blitz 1.4s var(--sanft)}
+/* Start/Stopp-Karte (12.10.2026): eine Zeile, volle Breite, unter Gruss und
+   Spruch, nur Mirko. Gleiche Hoehe in beiden Zustaenden (min-height), damit
+   beim Stempeln nichts springt. Unterschiede nur nach Breite (Block ab 1100 px). */
+#rieb .k-stempel{flex-direction:row;align-items:center;gap:14px;min-height:72px;padding:14px 18px;margin-bottom:12px;border-radius:24px;text-align:left}
+#rieb .k-stempel .k-text{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
+#rieb .k-stempel .k-unter{display:flex;align-items:center;gap:8px;font-variant-numeric:tabular-nums;white-space:nowrap;min-width:0}
+#rieb .k-stempel .k-unter span:last-child{overflow:hidden;text-overflow:ellipsis;min-width:0}
+#rieb .k-stempel .k-pfeil{flex:none;color:var(--n-text3)}
+#rieb .k-stempel .k-pfeil .ic{width:20px;height:20px}
+/* noch nicht gestartet: das Symbol leuchtet wie der Start-Knopf unter "Zeit" -
+   die Karte soll als Knopf zu erkennen sein */
+#rieb .k-stempel .k-ic{background:linear-gradient(180deg,#B9ECFF,#38BDF8);color:#06070A;box-shadow:0 0 18px rgba(56,189,248,.35)}
+/* laeuft: dezenter Akzent - blauer Schein von links, Umriss in Eis, Zeile in Eis */
+#rieb .k-stempel.laeuft .k-grund{background:
+    radial-gradient(70% 170% at 0% 50%, rgba(56,189,248,.26), transparent 72%),
+    linear-gradient(180deg,rgba(255,255,255,.085),rgba(255,255,255,.03));
+  box-shadow:inset 0 0 0 1px rgba(125,211,252,.42),inset 0 1px 0 rgba(255,255,255,.07)}
+#rieb .k-stempel.laeuft .k-ic{background:rgba(56,189,248,.16);color:var(--eis);box-shadow:inset 0 0 0 1px rgba(125,211,252,.42)}
+#rieb .k-stempel.laeuft .k-unter{color:var(--eis)}
+/* Rueckfrage "Feierabend stempeln?": zwei Knoepfe nebeneinander. "Nein" bekommt
+   Flaeche UND Umriss, damit er auch im hellen Bogen zu sehen ist (Mirko: Knoepfe
+   im hellen Design waren unsichtbar). */
+#rieb .ja-nein{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
+#rieb .haupt-knopf.nein{background:var(--t1);color:var(--tinte);box-shadow:inset 0 0 0 1.5px var(--tinte3)}
+@keyframes r-blitz{0%{box-shadow:inset 0 0 0 1px rgba(74,222,128,.9),0 0 40px rgba(74,222,128,.45)}100%{box-shadow:inset 0 0 0 1px var(--n-rand)}}
+#rieb .segmente{display:grid;grid-template-columns:repeat(var(--n),1fr);gap:3px;height:24px}
+#rieb .seg{border-radius:3px;background:rgba(255,255,255,.08);transform-origin:bottom}
+#rieb .seg.voll{background:linear-gradient(180deg,#B9ECFF,#38BDF8);box-shadow:0 0 12px rgba(56,189,248,.42)}
+#rieb .seg.kurz{background:rgba(125,211,252,.35)}
+#rieb .seg.abw{background:linear-gradient(180deg,#86EFAC,#22C55E);box-shadow:0 0 10px rgba(34,197,94,.35)}
+#rieb .seg.laeuft{background:linear-gradient(to top,#38BDF8 calc(var(--p,0)*100%),rgba(255,255,255,.1) calc(var(--p,0)*100%));
+  outline:1.5px solid var(--eis);outline-offset:2px;animation:r-puls 2.6s ease-in-out infinite}
+#rieb .seg.heute{outline:1.5px solid var(--eis);outline-offset:2px}
+#rieb .segmente.erscheint .seg{animation:r-seg-auf .7s var(--sanft) both;animation-delay:calc(var(--i)*22ms)}
+#rieb .segmente.erscheint .seg.laeuft{animation:r-seg-auf .7s var(--sanft) both,r-puls 2.6s 1.2s ease-in-out infinite;animation-delay:calc(var(--i)*22ms),1.2s}
+#rieb .seg.neu{animation:r-seg-neu 1.2s var(--sanft)}
+@keyframes r-seg-auf{from{transform:scaleY(.12);opacity:0}}
+@keyframes r-seg-neu{0%{transform:scaleY(1.6);filter:brightness(1.8)}100%{transform:none;filter:none}}
+@keyframes r-puls{50%{outline-color:rgba(125,211,252,.25)}}
+#rieb .bereich{background:var(--n1)}
+#rieb .b-kopf{position:relative;isolation:isolate;color:var(--n-text);padding:calc(var(--oben) + 10px) 0 54px}
+#rieb .b-kopf.kompakt{padding-bottom:46px}
+#rieb .b-grund{position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(180deg,rgba(255,255,255,.078),rgba(255,255,255,.026)),var(--n1)}
+#rieb #s-spesen .b-grund{background:
+    radial-gradient(70% 60% at 90% 0%, rgba(56,189,248,.26), transparent 70%),
+    linear-gradient(180deg,rgba(255,255,255,.085),rgba(255,255,255,.03)),var(--n1)}
+#rieb .b-innen{max-width:1180px;margin:0 auto;padding:0 18px}
+#rieb .b-leiste{display:flex;align-items:center;justify-content:space-between;height:44px;gap:12px}
+#rieb .rund{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;flex:none;
+  background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1px var(--n-rand);transition:transform .2s var(--sanft),background .2s}
+#rieb .rund:active{transform:scale(.92)}
+#rieb .rund .ic{width:20px;height:20px}
+#rieb .rund.klein{width:38px;height:38px}
+#rieb .rund.hell{background:var(--t1);box-shadow:0 0 0 1px var(--t-rand);color:var(--tinte)}
+#rieb .b-nav{display:none}
+#rieb .b-titelzeile{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:20px;min-height:40px}
+#rieb .b-titel{margin:0}
+#rieb .monat-wahl{display:flex;align-items:center;background:rgba(255,255,255,.07);border-radius:999px;padding:3px;box-shadow:inset 0 0 0 1px var(--n-rand)}
+#rieb .monat-wahl button{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:var(--n-text2)}
+#rieb .monat-wahl button:disabled{opacity:.3;cursor:default}
+#rieb .monat-wahl .ic{width:18px;height:18px}
+#rieb .monat-wahl span{font-size:14px;font-weight:560;min-width:112px;text-align:center;font-variant-numeric:tabular-nums}
+#rieb .b-zahlzeile{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-top:16px;transform-origin:left bottom;will-change:transform,opacity}
+#rieb .b-kopf .zahl{font-size:66px}
+#rieb .b-unter{font-size:14px;color:var(--n-text2);margin-top:10px}
+#rieb .b-kopf .segmente{margin-top:20px;height:30px}
+#rieb .mini-kopf{position:fixed;left:0;right:0;top:0;z-index:20;transform:translateY(-105%);transition:transform .4s var(--sanft);
+  background:rgba(10,12,16,.78);-webkit-backdrop-filter:blur(16px) saturate(1.4);backdrop-filter:blur(16px) saturate(1.4);
+  border-bottom:1px solid var(--n-rand);padding-top:var(--oben)}
+#rieb .bereich.eng .mini-kopf{transform:none}
+#rieb .mk-innen{max-width:1180px;margin:0 auto;padding:8px 14px;display:flex;align-items:center;gap:12px}
+#rieb .mk-text{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25}
+#rieb .mk-text b{font-size:15px;font-weight:620}
+#rieb .mk-text span{font-size:12.5px;color:var(--n-text2);font-variant-numeric:tabular-nums}
+#rieb .blatt{position:relative;margin-top:-28px;background:var(--t0);border-radius:28px 28px 0 0;color:var(--tinte);min-height:82vh;
+  box-shadow:0 -22px 46px rgba(0,0,0,.30)}
+#rieb .blatt-innen{max-width:1180px;margin:0 auto;padding:22px 16px calc(var(--unten) + 44px);display:flex;flex-direction:column}
+#rieb .seite{display:contents}
+#rieb .schnell{order:0}
+#rieb .haupt{order:1}
+#rieb .karte-stamm{order:2}
+#rieb .links{order:3}
+#rieb .blatt-fuss{order:4}
+#rieb .schnell{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:16px}
+#rieb .schnell button{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;font-weight:560;color:var(--tinte2);text-align:center;line-height:1.25}
+#rieb .schnell .knopf{width:58px;height:58px;border-radius:19px;background:var(--t1);display:grid;place-items:center;color:var(--tinte);
+  box-shadow:0 0 0 1px var(--t-rand),0 1px 2px rgba(14,17,22,.04);transition:transform .2s var(--sanft)}
+#rieb .schnell button:active .knopf{transform:scale(.92)}
+#rieb .schnell .erst .knopf{background:var(--tinte);color:#fff;box-shadow:0 10px 24px rgba(14,17,22,.28)}
+#rieb .schnell .erst{color:var(--tinte)}
+#rieb .schnell.zwei{display:flex;justify-content:flex-start;gap:26px;padding-left:4px}
+#rieb .karte{background:var(--t1);border-radius:22px;padding:16px 18px;box-shadow:0 0 0 1px var(--t-rand),0 1px 2px rgba(14,17,22,.03)}
+#rieb .karte h3{margin:0 0 12px;font-size:15px;font-weight:640;letter-spacing:-.01em}
+#rieb .karte+.karte{margin-top:12px}
+#rieb .k-titelzeile{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+#rieb .ueberschrift{font-size:11px;font-weight:660;letter-spacing:.09em;text-transform:uppercase;color:var(--tinte3)}
+#rieb .knopf-klein{height:34px;padding:0 14px;border-radius:999px;background:var(--t0);font-size:13px;font-weight:600;color:var(--tinte);flex:none}
+#rieb .karte-zeiten .zeit-gross{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+#rieb .karte-zeiten .zeit-gross b{font-size:28px;font-weight:640;letter-spacing:-.035em;font-variant-numeric:tabular-nums}
+#rieb .karte-zeiten .zeit-gross b .pf{color:var(--tinte3);font-weight:350;margin:0 .32em;font-size:.8em}
+#rieb .karte-zeiten .zeit-gross span{font-size:13.5px;color:var(--tinte2);font-variant-numeric:tabular-nums}
+#rieb .karte-zeiten p,#rieb .karte-stamm p{margin:8px 0 0;font-size:12.5px;color:var(--tinte3);line-height:1.5}
+#rieb .karte-zeiten{margin-bottom:12px}
+#rieb .karte-stamm{margin-top:22px}
+#rieb .stamm-name{font-size:17px;font-weight:640;letter-spacing:-.015em}
+#rieb .stamm-zeile{font-size:13.5px;color:var(--tinte2);margin-top:3px}
+#rieb .stamm-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+#rieb .stamm-chips span{height:26px;padding:0 10px;border-radius:999px;background:var(--t0);font-size:12.5px;font-weight:580;display:inline-flex;align-items:center;color:var(--tinte2)}
+#rieb .hinweis{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;line-height:1.5;color:var(--tinte3);padding:2px 6px}
+#rieb .hinweis .ic{flex:none;width:16px;height:16px;color:var(--eis-tief);margin-top:1px}
+#rieb .hinweis b{color:var(--tinte2);font-weight:610}
+#rieb .hinweis.karte{padding:12px 14px;font-size:13px;color:var(--tinte2)}
+#rieb .hinweis.karte b{color:var(--tinte)}
+#rieb .woche{margin-top:20px}
+#rieb .woche-kopf{display:flex;align-items:center;gap:10px;font-size:11px;font-weight:660;letter-spacing:.08em;text-transform:uppercase;color:var(--tinte3);padding:0 6px 9px}
+#rieb .w-balken{margin-left:auto;width:44px;height:4px;border-radius:2px;background:#D9DEE6;overflow:hidden}
+#rieb .w-balken i{display:block;height:100%;background:linear-gradient(90deg,#7DD3FC,#0284C7);border-radius:2px}
+#rieb .w-summe{min-width:62px;text-align:right;color:var(--tinte2);font-variant-numeric:tabular-nums}
+#rieb .tabellenkopf{display:none}
+#rieb .tag{position:relative;overflow:hidden;width:100%;display:grid;grid-template-columns:48px 1fr auto;grid-template-areas:"datum zeit betrag" "datum orte std";column-gap:12px;row-gap:3px;align-items:center;
+  background:var(--t1);border-radius:18px;padding:11px 16px 11px 11px;margin-bottom:8px;box-shadow:0 0 0 1px var(--t-rand);color:var(--tinte);
+  transition:transform .25s var(--sanft),box-shadow .25s}
+#rieb .tag:active{transform:scale(.985)}
+@media (hover:hover){
+#rieb .tag:hover{box-shadow:0 0 0 1px #C9D0DA,0 6px 18px rgba(14,17,22,.07)}
+}
+#rieb .t-datum{grid-area:datum;display:flex;flex-direction:column;align-items:center;justify-content:center;height:48px;border-radius:13px;background:var(--t0)}
+#rieb .t-wt{font-size:10.5px;font-weight:660;letter-spacing:.07em;text-transform:uppercase;color:var(--tinte3)}
+#rieb .t-nr{font-size:19px;font-weight:630;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1.08}
+#rieb .t-zeit{grid-area:zeit;display:flex;gap:7px;align-items:center;font-size:16.5px;font-weight:580;font-variant-numeric:tabular-nums;letter-spacing:-.01em;min-width:0}
+#rieb .t-pfeil{color:var(--tinte3);font-weight:400}
+#rieb .t-orte{grid-area:orte;font-size:13px;color:var(--tinte2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+#rieb .t-marke{display:inline-flex;align-items:center;gap:5px;margin-left:8px;color:var(--eis-tief);font-weight:600;font-size:12px}
+#rieb .t-marke::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor}
+#rieb .t-betrag{grid-area:betrag;justify-self:end;font-size:16.5px;font-weight:640;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+#rieb .t-std{grid-area:std;justify-self:end;font-size:13px;color:var(--tinte2);font-variant-numeric:tabular-nums}
+#rieb .t-status{display:none}
+#rieb .t-betrag.null{color:var(--tinte3);font-weight:500}
+#rieb .t-lauf{position:absolute;left:0;bottom:0;height:3px;width:calc(var(--p,0)*100%);background:linear-gradient(90deg,#7DD3FC,#0284C7);border-radius:0 2px 2px 0}
+#rieb .tag.heute{box-shadow:0 0 0 1.5px var(--eis-satt),0 10px 26px rgba(56,189,248,.18)}
+#rieb .tag.heute .t-datum{background:var(--tinte);color:#fff}
+#rieb .tag.heute .t-wt{color:#9DB4CC}
+#rieb .tag.heute.laeuft .t-betrag{opacity:.4}
+#rieb .tag.kommt{background:transparent;box-shadow:none;padding:6px 16px 6px 11px;margin-bottom:2px;grid-template-areas:"datum zeit betrag"}
+#rieb .tag.kommt .t-datum{height:34px;background:transparent;flex-direction:row;gap:6px;justify-content:flex-start;padding-left:4px}
+#rieb .tag.kommt .t-nr{font-size:15px}
+#rieb .tag.kommt .t-zeit{font-size:14px;font-weight:500;color:var(--tinte3)}
+#rieb .tag.kommt .t-orte,#rieb .tag.kommt .t-std{display:none}
+#rieb .tag.kommt .t-betrag{font-size:12px;font-weight:560;color:var(--tinte3)}
+#rieb .voraus{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#E0F2FE;border-radius:16px;padding:9px 9px 9px 16px;margin:4px 0 10px;
+  font-size:13.5px;font-weight:580;color:var(--eis-tief)}
+#rieb .voraus button{height:34px;padding:0 14px;border-radius:999px;background:var(--tinte);color:#fff;font-size:13px;font-weight:620;white-space:nowrap;flex:none}
+#rieb .voraus.gefuellt button{background:var(--t1);color:var(--tinte);box-shadow:0 0 0 1px #BAE6FD}
+#rieb .seg.voll.voraus{background:linear-gradient(180deg,rgba(185,236,255,.5),rgba(56,189,248,.5));box-shadow:none}
+#rieb .ruhe{display:flex;gap:10px;align-items:center;padding:3px 12px 8px;font-size:12.5px;color:var(--tinte3);font-variant-numeric:tabular-nums}
+#rieb .ruhe b{font-weight:640;color:var(--tinte2);min-width:44px}
+#rieb .chip{display:inline-flex;align-items:center;gap:6px;height:25px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:620;white-space:nowrap;letter-spacing:0}
+#rieb .chip::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+#rieb .chip.urlaub{background:var(--urlaub-bg);color:var(--urlaub)}
+#rieb .chip.krank{background:var(--krank-bg);color:var(--krank)}
+#rieb .chip.frei{background:var(--frei-bg);color:var(--frei)}
+#rieb .chip.sonderurlaub{background:var(--sonder-bg);color:var(--sonder)}
+#rieb .chip.elternzeit{background:var(--eltern-bg);color:var(--eltern)}
+#rieb .chip.feiertag{background:var(--feier-bg);color:var(--feier)}
+#rieb .chip.heute{background:#E0F2FE;color:var(--eis-tief)}
+#rieb .links{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:22px}
+#rieb .links button{height:38px;padding:0 15px;border-radius:999px;background:var(--t1);box-shadow:0 0 0 1px var(--t-rand);font-size:13px;font-weight:570;color:var(--tinte);display:inline-flex;gap:8px;align-items:center}
+#rieb .links .ic{width:16px;height:16px}
+#rieb .blatt-fuss{margin-top:20px;font-size:12.5px;color:var(--tinte3);line-height:1.6;text-align:center}
+#rieb .haupt.rein-links{animation:r-rein-links .5s var(--sanft) both}
+#rieb .haupt.rein-rechts{animation:r-rein-rechts .5s var(--sanft) both}
+@keyframes r-rein-links{from{transform:translateX(-36px);opacity:0}}
+@keyframes r-rein-rechts{from{transform:translateX(36px);opacity:0}}
+#rieb .auftauchen>*{animation:r-auf .6s var(--sanft) both;animation-delay:calc(var(--i,0)*40ms + .18s)}
+@keyframes r-auf{from{transform:translateY(14px);opacity:0}}
+#rieb .anspruch{display:flex;align-items:center;justify-content:space-between;gap:12px}
+#rieb .anspruch .gross{font-size:26px;font-weight:640;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+#rieb .anspruch small{display:block;font-size:12.5px;color:var(--tinte3);font-weight:500;margin-bottom:2px}
+#rieb .felder{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#rieb .feld{display:flex;flex-direction:column;gap:4px;background:var(--t0);border-radius:14px;padding:10px 12px;min-width:0}
+#rieb .feld span{font-size:11.5px;color:var(--tinte3);font-weight:560}
+#rieb .feld input,#rieb .feld select{border:0;background:none;color:var(--tinte);font-size:15px;font-weight:560;padding:0;outline:none;width:100%;min-width:0;font-variant-numeric:tabular-nums}
+#rieb .arten{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0 14px}
+#rieb .art{height:34px;padding:0 13px;border-radius:999px;background:var(--t0);font-size:13px;font-weight:580;color:var(--tinte2);transition:background .2s,color .2s}
+#rieb .art.an{background:var(--tinte);color:#fff}
+#rieb .haupt-knopf{display:block;width:100%;height:52px;border-radius:16px;background:var(--tinte);color:#fff;font-size:15.5px;font-weight:620;text-align:center;
+  box-shadow:0 10px 24px rgba(14,17,22,.22);transition:transform .2s var(--sanft)}
+#rieb .haupt-knopf:active{transform:scale(.98)}
+#rieb .text-knopf{display:block;width:100%;text-align:center;font-size:14px;font-weight:580;color:var(--tinte2);padding:14px 0 2px}
+#rieb .klein-text{font-size:12.5px;color:var(--tinte3);line-height:1.5;margin:12px 2px 0}
+#rieb .legende{display:flex;flex-wrap:wrap;gap:6px;margin:18px 0 12px}
+#rieb .kalender{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#rieb .mmonat{background:var(--t1);border-radius:18px;padding:12px 10px 10px;box-shadow:0 0 0 1px var(--t-rand)}
+#rieb .mmonat h4{margin:0 0 7px 4px;font-size:13px;font-weight:640}
+#rieb .mgitter{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;font-size:11px;text-align:center;font-variant-numeric:tabular-nums}
+#rieb .mgitter .k{color:var(--tinte3);font-size:9.5px;font-weight:640;padding-bottom:2px}
+#rieb .mgitter .d{aspect-ratio:1;display:grid;place-items:center;border-radius:7px;color:var(--tinte)}
+#rieb .d.we{color:#B5BCC7}
+#rieb .d.fei{background:var(--feier-bg);color:var(--feier);font-weight:640}
+#rieb .d.urlaub{background:#22A55A;color:#fff;font-weight:640}
+#rieb .d.krank{background:#DC2626;color:#fff;font-weight:640}
+#rieb .d.frei{background:#94A3B8;color:#fff;font-weight:640}
+#rieb .d.heute{box-shadow:0 0 0 1.6px var(--eis-satt);font-weight:700}
+#rieb .balken{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:6px;height:170px;align-items:end;padding:8px 2px 0}
+#rieb .balken .b{position:relative;display:flex;flex-direction:column;justify-content:flex-end;height:100%}
+#rieb .balken .saeule{border-radius:8px 8px 4px 4px;background:#D5DBE4;transform-origin:bottom;animation:r-seg-auf .9s var(--sanft) both;animation-delay:calc(var(--i)*45ms + .2s)}
+#rieb .balken .saeule.jetzt{background:linear-gradient(180deg,#7DD3FC,#0284C7);box-shadow:0 8px 20px rgba(2,132,199,.3)}
+#rieb .balken .saeule.spaeter{background:transparent;border:1.5px dashed #CBD2DC;height:18px!important}
+#rieb .balken .wert{font-size:10px;color:var(--tinte3);text-align:center;margin-bottom:4px;font-variant-numeric:tabular-nums;white-space:nowrap}
+#rieb .balken-text{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:6px;font-size:10.5px;color:var(--tinte3);text-align:center;margin-top:6px;font-weight:560}
+#rieb .tabelle{margin-top:12px}
+#rieb .tz{display:grid;grid-template-columns:1fr 54px 54px 92px;gap:8px;align-items:center;padding:12px 4px;border-bottom:1px solid var(--t-rand);font-size:14px;font-variant-numeric:tabular-nums}
+#rieb .tz:last-child{border-bottom:0}
+#rieb .tz.kopf{font-size:11px;font-weight:640;letter-spacing:.07em;text-transform:uppercase;color:var(--tinte3);padding-top:4px}
+#rieb .tz .r{text-align:right}
+#rieb .tz .m{font-weight:600}
+#rieb .tz .betr{font-weight:640}
+#rieb .tz.leer{color:var(--tinte3)}
+#rieb .tz.summe{font-weight:700;border-top:1.5px solid var(--tinte);border-bottom:0}
+#rieb .gruppe+.gruppe{margin-top:20px}
+#rieb .gruppe-titel{font-size:11px;font-weight:640;letter-spacing:.08em;text-transform:uppercase;color:var(--tinte3);padding:0 8px 8px}
+#rieb .liste{background:var(--t1);border-radius:22px;box-shadow:0 0 0 1px var(--t-rand);overflow:hidden}
+#rieb .zeile{width:100%;display:flex;align-items:center;gap:14px;padding:14px 16px;color:var(--tinte);transition:background .15s}
+#rieb .zeile+.zeile{border-top:1px solid var(--t-rand)}
+#rieb .zeile:active{background:var(--t0)}
+#rieb .z-ic{width:36px;height:36px;border-radius:11px;background:var(--t0);display:grid;place-items:center;flex:none;color:var(--tinte)}
+#rieb .z-ic .ic{width:19px;height:19px}
+#rieb .z-text{flex:1;font-size:15px;font-weight:570;line-height:1.3}
+#rieb .z-text small{display:block;font-size:12.5px;color:var(--tinte3);font-weight:480}
+#rieb .zeile .rechts{color:var(--tinte3);font-size:13.5px;display:flex;align-items:center;gap:6px}
+#rieb .zeile .rechts .ic{width:17px;height:17px}
+#rieb .zeile.gefahr{color:var(--krank)}
+#rieb .zeile.gefahr .z-ic{background:var(--krank-bg);color:var(--krank)}
+#rieb .video{border-radius:24px;overflow:hidden;background:var(--n2);color:var(--n-text);box-shadow:0 18px 40px rgba(14,17,22,.25);cursor:pointer}
+#rieb .video-bild{aspect-ratio:16/9;display:grid;place-items:center;position:relative;
+  background:radial-gradient(60% 70% at 70% 20%,rgba(56,189,248,.28),transparent 70%),radial-gradient(50% 60% at 10% 100%,rgba(99,102,241,.25),transparent 70%),var(--n1)}
+#rieb .video-bild .zeichen{width:64px;height:64px;opacity:.9}
+#rieb .abspielen{position:absolute;right:18px;bottom:18px;width:54px;height:54px;border-radius:50%;background:rgba(255,255,255,.14);display:grid;place-items:center;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
+#rieb .abspielen .ic{width:22px;height:22px;fill:currentColor;stroke:none;margin-left:3px}
+#rieb .video-text{padding:16px 18px 18px}
+#rieb .video-text b{display:block;font-size:16px;font-weight:620}
+#rieb .video-text span{font-size:13px;color:var(--n-text2)}
+#rieb .ebene{position:fixed;inset:0;z-index:60;display:grid;align-items:end}
+#rieb .ebene[hidden]{display:none}
+#rieb .ebene-dunkel{position:absolute;inset:0;background:rgba(4,5,8,.55);opacity:0;transition:opacity .4s ease}
+#rieb .bogen{position:relative;background:var(--t0);color:var(--tinte);border-radius:30px 30px 0 0;padding:10px 18px calc(var(--unten) + 22px);
+  transform:translateY(105%);transition:transform .6s var(--sanft);max-height:94vh;overflow-y:auto;box-shadow:0 -20px 50px rgba(0,0,0,.35)}
+#rieb .ebene.offen .ebene-dunkel{opacity:1}
+#rieb .ebene.offen .bogen{transform:none}
+#rieb .griff{width:40px;height:5px;border-radius:3px;background:#C5CCD6;margin:0 auto 14px}
+#rieb .bogen-kopf{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+#rieb .bogen-kopf .ueber{font-size:12.5px;color:var(--tinte3);font-weight:560}
+#rieb .bogen-kopf h3{margin:2px 0 0;font-size:22px;font-weight:640;letter-spacing:-.025em}
+#rieb .bogen .arten{margin:16px -18px 0;padding:0 18px 2px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+#rieb .bogen .arten::-webkit-scrollbar{display:none}
+#rieb .bogen .art{flex:none;background:var(--t1);box-shadow:0 0 0 1px var(--t-rand)}
+#rieb .bogen .art.an{background:var(--tinte);color:#fff;box-shadow:none}
+#rieb .bogen .feld{background:var(--t1);box-shadow:0 0 0 1px var(--t-rand)}
+#rieb .felder>.feld{margin-top:0!important}
+#rieb .zeiten{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+#rieb .zeitfeld{background:var(--t1);border-radius:18px;padding:12px 14px 10px;box-shadow:0 0 0 1px var(--t-rand);display:flex;flex-direction:column;gap:2px;min-width:0}
+#rieb .zeitfeld span{font-size:12px;color:var(--tinte3);font-weight:570}
+#rieb .zeitfeld input{border:0;background:none;font-size:30px;font-weight:630;letter-spacing:-.035em;font-variant-numeric:tabular-nums;color:var(--tinte);padding:0;width:100%;outline:none;min-height:38px;min-width:0}
+#rieb .zeitfeld input::-webkit-calendar-picker-indicator{opacity:.3}
+#rieb .zeitfeld:focus-within{box-shadow:0 0 0 2px var(--eis-satt)}
+#rieb .ortfeld{margin-top:10px}
+#rieb .messer{margin:12px 0 16px;background:var(--t1);border-radius:18px;padding:16px;box-shadow:0 0 0 1px var(--t-rand)}
+#rieb .messer-zeile{display:flex;justify-content:space-between;align-items:baseline}
+#rieb .messer-std{font-size:30px;font-weight:640;letter-spacing:-.035em;font-variant-numeric:tabular-nums}
+#rieb .messer-std small{font-size:14px;color:var(--tinte3);font-weight:520;letter-spacing:0;margin-left:3px}
+#rieb .messer-betrag{font-size:18px;font-weight:650;font-variant-numeric:tabular-nums}
+#rieb .skala{position:relative;height:10px;border-radius:5px;background:var(--t0);margin:16px 0 8px}
+#rieb .skala-fuell{position:absolute;left:0;top:0;bottom:0;border-radius:5px;background:linear-gradient(90deg,#7DD3FC,#0284C7);transition:width .6s var(--feder),background .3s}
+#rieb .skala.kurz .skala-fuell{background:#C3CBD6}
+#rieb .skala.lang .skala-fuell{background:linear-gradient(90deg,#FCA5A5,#DC2626)}
+#rieb .strich{position:absolute;top:-5px;bottom:-5px;width:2px;border-radius:1px;background:var(--tinte)}
+#rieb .skala-text{position:relative;height:16px;font-size:11px;color:var(--tinte3);font-weight:560}
+#rieb .skala-text span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+#rieb .messer-satz{font-size:13px;color:var(--tinte2);margin-top:8px;line-height:1.45}
+#rieb .status-text{margin:16px 0;padding:16px;border-radius:18px;background:var(--t1);box-shadow:0 0 0 1px var(--t-rand);font-size:14px;color:var(--tinte2);line-height:1.5}
+#rieb .os-wahl{display:grid;grid-template-columns:1fr 1fr;background:var(--t1);border-radius:14px;padding:4px;box-shadow:0 0 0 1px var(--t-rand);margin:16px 0}
+#rieb .os-wahl button{height:38px;border-radius:10px;text-align:center;font-size:14px;font-weight:600;color:var(--tinte2)}
+#rieb .os-wahl button.an{background:var(--tinte);color:#fff}
+#rieb .schritte{margin:0;padding:0;list-style:none;counter-reset:s}
+#rieb .schritte li{counter-increment:s;display:flex;gap:14px;align-items:flex-start;padding:10px 2px;font-size:14.5px;line-height:1.45;color:var(--tinte2)}
+#rieb .schritte li::before{content:counter(s);flex:none;width:28px;height:28px;border-radius:50%;background:var(--tinte);color:#fff;display:grid;place-items:center;font-size:13px;font-weight:650}
+#rieb .schritte b{color:var(--tinte);font-weight:620}
+#rieb .symbol-vorschau{display:flex;align-items:center;gap:16px;margin-top:16px;padding:16px;border-radius:20px;background:linear-gradient(135deg,#1E293B,#0F172A)}
+#rieb .symbol{width:64px;height:64px;border-radius:15px;display:grid;place-items:center;flex:none;
+  background:radial-gradient(80% 80% at 80% 10%,rgba(56,189,248,.35),transparent 60%),#0B0D12;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1),0 8px 20px rgba(0,0,0,.4)}
+#rieb .symbol .zeichen{width:42px;height:42px}
+/* Seit 08.10.2026 zeigt die Vorschau die ECHTE Symbol-Datei (R + Schwung-S) -
+   so kann sie vom Startbildschirm nie abweichen. */
+#rieb .symbol img{display:block;width:100%;height:100%;border-radius:inherit}
+/* Zeichen "R + Schwung-S" (Mirko 08.10.2026: "rs soll dort auch hin") -
+   breiter als hoch (121 : 73), darum Hoehe vorgeben statt Quadrat. */
+#rieb .marke .zeichen.rs{width:auto;height:22px;aspect-ratio:121/73}
+#rieb #intro .zeichen.rs{width:auto;height:76px;aspect-ratio:121/73;overflow:visible}
+#rieb #intro .rs-r{opacity:0;transform:translateY(8px);transform-box:fill-box;transform-origin:center;animation:r-wort-auf .6s .05s var(--sanft) forwards}
+#rieb #intro .zeichen.rs .s-pfad{animation-delay:.3s}
+#rieb #intro .zeichen.rs~.wortmarke{animation-delay:.75s}
+@media (min-width:1100px){
+  #rieb .marke .zeichen.rs{height:25px}
+}
+#rieb .symbol-vorschau p{margin:0;color:#CBD5E1;font-size:13px;line-height:1.45}
+#rieb .symbol-vorschau b{color:#fff;display:block;font-size:14px}
+#rieb .rollen{display:grid;gap:10px;margin-top:14px}
+#rieb .rolle-wahl{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:18px;background:var(--t1);box-shadow:0 0 0 1px var(--t-rand);transition:box-shadow .2s,background .2s}
+#rieb .rolle-wahl .r-ic{width:40px;height:40px;border-radius:12px;background:var(--t0);display:grid;place-items:center;flex:none}
+#rieb .rolle-wahl b{display:block;font-size:15px;font-weight:620}
+#rieb .rolle-wahl small{font-size:12.5px;color:var(--tinte3)}
+#rieb .rolle-wahl.an{box-shadow:0 0 0 2px var(--tinte)}
+#rieb .rolle-wahl.an .r-ic{background:var(--tinte);color:#fff}
+#rieb #toast{position:fixed;left:50%;bottom:calc(var(--unten) + 26px);transform:translate(-50%,24px);opacity:0;z-index:80;background:rgba(14,17,22,.94);color:#fff;
+  padding:12px 18px;border-radius:999px;font-size:13.5px;font-weight:560;box-shadow:0 12px 32px rgba(0,0,0,.35);transition:transform .45s var(--sanft),opacity .3s;pointer-events:none;white-space:nowrap}
+#rieb #toast.zeigen{transform:translate(-50%,0);opacity:1}
+/* In der Einrichtung (10.10.2026): Hinweis UEBER dem Knopf, nicht darauf - Mirko:
+   "hinweis über dem knopf nicht drauf". Der Fuss: Knopf 52px, darunter
+   var(--unten)+22px -> Hinweis 12px darueber. Lange Texte brechen um, statt
+   breiter als der Knopf zu werden. */
+#rieb #toast.ueber-knopf{bottom:calc(var(--unten) + 22px + 52px + 12px);white-space:normal;text-align:center;width:max-content;max-width:min(576px,calc(100% - 44px));border-radius:18px}
+#rieb .einrichtung{position:fixed;inset:0;z-index:65;background:var(--n1);color:var(--n-text);display:flex;flex-direction:column;overflow:hidden;overflow:clip}
+/* overflow:clip (10.10.2026): Der Lichtschein ::before ragt 20 % ueber jeden
+   Rand (inset:-20%). Mit overflow:hidden blieb das Fenster VERSCHIEBBAR - jedes
+   scrollIntoView (Tastatur am iPhone, Fokus) konnte es um bis zu 20 % schieben,
+   Ueberschrift oben abgeschnitten (gemessen: 256/180 px bei 1280x900). clip
+   schneidet genauso ab, ist aber kein Scroll-Behaelter. Aeltere Geraete ohne
+   clip behalten hidden. */
+#rieb .einrichtung[hidden]{display:none}
+#rieb .einrichtung::before{content:"";position:absolute;inset:-20%;pointer-events:none;
+  background:radial-gradient(40% 32% at 85% 5%, rgba(56,189,248,.22), transparent 70%),radial-gradient(40% 35% at 5% 95%, rgba(99,102,241,.16), transparent 70%)}
+#rieb .er-kopf{position:relative;display:flex;align-items:center;gap:14px;padding:calc(var(--oben) + 12px) 18px 0;max-width:620px;width:100%;margin:0 auto}
+#rieb .er-schritte{flex:1;display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+#rieb .er-schritte i{height:4px;border-radius:2px;background:rgba(255,255,255,.12);transition:background .4s,box-shadow .4s}
+#rieb .er-schritte i.an{background:var(--eis-satt);box-shadow:0 0 10px rgba(56,189,248,.6)}
+#rieb .er-inhalt{position:relative;flex:1;overflow-y:auto;padding:34px 22px 20px;max-width:620px;width:100%;margin:0 auto}
+#rieb .er-inhalt h2{font-size:32px;line-height:1.08;letter-spacing:-.035em;font-weight:580;margin:0 0 10px}
+#rieb .er-inhalt .er-text{font-size:15px;color:var(--n-text2);line-height:1.5;margin:0 0 26px}
+#rieb .er-feld{display:flex;flex-direction:column;gap:5px;padding:13px 16px;border-radius:18px;background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px var(--n-rand);transition:box-shadow .2s}
+#rieb .er-feld+.er-feld{margin-top:10px}
+#rieb .er-feld span{font-size:12px;color:var(--n-text2);font-weight:560}
+#rieb .er-feld input,#rieb .er-feld select{border:0;background:none;color:var(--n-text);font-size:20px;font-weight:560;outline:none;padding:0;width:100%;min-width:0;color-scheme:dark}
+#rieb .er-feld select option{color:#000}
+#rieb .er-feld:focus-within{box-shadow:inset 0 0 0 1.5px var(--eis-satt),0 0 0 4px rgba(56,189,248,.15)}
+#rieb .er-feld input::placeholder{color:#4B5360}
+#rieb .er-zeiten{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#rieb .er-zeiten input{font-size:30px;font-weight:600;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+#rieb .er-rolle{display:flex;align-items:center;gap:14px;width:100%;padding:16px;border-radius:20px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1px var(--n-rand);transition:box-shadow .25s,background .25s}
+#rieb .er-rolle+.er-rolle{margin-top:10px}
+#rieb .er-rolle .r-ic{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:rgba(255,255,255,.07);color:var(--eis);flex:none}
+#rieb .er-rolle b{display:block;font-size:16px;font-weight:620}
+#rieb .er-rolle small{font-size:13px;color:var(--n-text2)}
+#rieb .er-rolle.an{background:rgba(56,189,248,.1);box-shadow:inset 0 0 0 1.5px var(--eis-satt),0 0 24px rgba(56,189,248,.18)}
+#rieb .er-fuss{position:relative;padding:12px 22px calc(var(--unten) + 22px);max-width:620px;width:100%;margin:0 auto}
+/* Schrift FEST dunkel, nicht var(--tinte): Im Design Dunkel ist --tinte hell -
+   ab Schritt 2 der Einrichtung stand dann helle Schrift auf hellem Knopf
+   (#F2F4F7 auf #F2F4F7, unsichtbar). Gefunden 09.10.2026 im Anleitungsbild. */
+#rieb .haupt-knopf.hell{background:#F2F4F7;color:#0E1116;box-shadow:0 10px 30px rgba(56,189,248,.18)}
+#rieb .er-spaeter{display:block;width:100%;text-align:center;font-size:14px;font-weight:560;color:var(--n-text2);padding:14px 0 0}
+#rieb .er-spaeter[hidden]{display:none}
+#rieb .er-rein{animation:r-rein-rechts .5s var(--sanft) both}
+#rieb .er-zurueck-rein{animation:r-rein-links .5s var(--sanft) both}
+#rieb .er-fertig{display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:8vh}
+#rieb .er-haken{width:96px;height:96px;margin-bottom:26px}
+#rieb .er-haken circle{stroke-dasharray:283;stroke-dashoffset:283;animation:r-zeichnen 1s .1s var(--sanft) forwards}
+#rieb .er-haken path{stroke-dasharray:60;stroke-dashoffset:60;animation:r-zeichnen .6s .7s var(--sanft) forwards}
+#rieb #intro{position:fixed;inset:0;z-index:70;background:var(--n0);display:grid;place-items:center;align-content:center;gap:18px;transition:opacity .5s ease}
+#rieb #intro .zeichen{width:96px;height:96px}
+#rieb #intro .wortmarke{font-size:34px;opacity:0;transform:translateY(10px);animation:r-wort-auf .8s .55s var(--sanft) forwards}
+#rieb #intro .s-pfad{stroke-dasharray:var(--len,200);stroke-dashoffset:var(--len,200);animation:r-zeichnen 1s .1s var(--sanft) forwards}
+#rieb #intro .s-start{opacity:0;animation:r-punkt .4s .05s var(--sanft) forwards}
+#rieb #intro .s-ziel{opacity:0;animation:r-punkt .4s .95s var(--sanft) forwards}
+#rieb #intro.weg{opacity:0;pointer-events:none}
+@keyframes r-zeichnen{to{stroke-dashoffset:0}}
+@keyframes r-wort-auf{to{opacity:1;transform:none}}
+@keyframes r-punkt{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:none}}
+#rieb .s-start,#rieb .s-ziel{transform-box:fill-box;transform-origin:center}
+
+/* ---- Einstieg "Tafel + Durchflug" (09.10.2026, rieb.js tafelEinstieg) ----
+   Eigene Klassen (.fb...): ".kachel" sind die Karten der Startseite. */
+#rieb #intro.tafel-intro{background:radial-gradient(60% 40% at 50% 45%,#0D1420 0%,#06070A 70%);display:grid;place-items:center;transition:none}
+#rieb #intro canvas.sterne{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#rieb #intro .fb-tafel{position:relative;display:flex;flex-direction:column;align-items:center;gap:14px;margin-bottom:8vh}
+#rieb #intro .fb-reihe{display:flex;gap:var(--lg);perspective:500px}
+#rieb #intro .fb{position:relative;width:var(--kb);height:var(--kh);border-radius:calc(var(--kb) * .14);display:grid;place-items:center;
+  background:linear-gradient(180deg,#1B202A 0%,#141820 49.5%,#0E1117 50.5%,#151A22 100%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.07),0 8px 22px rgba(0,0,0,.45);
+  font-weight:620;font-size:calc(var(--kh) * .62);line-height:1;color:#F2F4F7;font-variant-numeric:tabular-nums;transform-origin:50% 50%}
+#rieb #intro .fb::after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(0,0,0,.65);box-shadow:0 1px 0 rgba(255,255,255,.05);z-index:2}
+#rieb #intro .fb-reihe.klein .fb{color:#A0A8B4;font-weight:560}
+#rieb #intro .fb.tor::after{opacity:0}
+#rieb #intro .fb-flaeche{position:absolute;inset:0;border-radius:inherit;background:linear-gradient(180deg,#7DD3FC,#0EA5E9);opacity:0}
+#rieb #intro .fb-stapel{position:relative;z-index:1;display:grid}
+#rieb #intro .fb-stapel span{grid-area:1/1}
+#rieb #intro .fb-blau{background:linear-gradient(135deg,#C9F0FF,#5CCBFA 55%,#0EA5E9);-webkit-background-clip:text;background-clip:text;color:transparent;opacity:0;filter:drop-shadow(0 0 12px rgba(56,189,248,.85))}
+
+/* ---- Brief an die Kollegen (09.10.2026, rieb.js briefZeigen) ---- */
+#rieb .brief-ebene{position:fixed;inset:0;z-index:1085}
+#rieb .brief-schleier{position:absolute;inset:0;background:rgba(6,7,10,.55);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);animation:r-brief-ein .5s ease both}
+#rieb .brief-blatt{position:absolute;left:50%;top:50%;width:min(560px,calc(100vw - 28px));max-height:calc(100dvh - 40px);overflow:auto;transform:translate(-50%,-50%);
+  border-radius:26px;padding:30px 30px 24px;background:#fff;color:var(--tinte);box-shadow:0 30px 80px rgba(0,0,0,.45);animation:r-brief-hoch .8s .15s cubic-bezier(.16,1.15,.3,1) both}
+#rieb .brief-blatt::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;border-radius:26px 26px 0 0;background:linear-gradient(90deg,#C9F0FF,#5CCBFA,#0EA5E9)}
+#rieb .brief-kopf{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+#rieb .brief-kopf svg{height:26px;width:auto;flex:none;overflow:visible}
+#rieb .brief-kopf small{display:block;font-size:11px;font-weight:660;letter-spacing:.09em;text-transform:uppercase;color:var(--tinte3)}
+#rieb .brief-kopf b{display:block;font-size:20px;font-weight:660;letter-spacing:-.02em;margin-top:2px}
+#rieb .brief-blatt p{font-size:15.5px;line-height:1.55;margin:0 0 14px;color:var(--tinte2)}
+#rieb .brief-punkte{list-style:none;margin:6px 0 18px;padding:0;display:flex;flex-direction:column;gap:10px}
+#rieb .brief-punkte li{display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:start;padding:12px 14px;border-radius:16px;background:var(--t0);font-size:14.5px;line-height:1.5;
+  animation:r-brief-punkt .6s cubic-bezier(.16,1,.3,1) both}
+#rieb .brief-punkte li:nth-child(1){animation-delay:.55s} #rieb .brief-punkte li:nth-child(2){animation-delay:.68s} #rieb .brief-punkte li:nth-child(3){animation-delay:.81s}
+#rieb .brief-punkte b{display:block;font-size:15px;font-weight:650;margin-bottom:2px;color:var(--tinte)}
+#rieb .brief-punkte span{color:var(--tinte2)}
+#rieb .brief-punkte .b-adresse{display:inline;font-size:inherit;margin:0;white-space:nowrap}
+/* Umzug mit einem Klick (09.10.2026): die neue Adresse ist ein Link */
+#rieb .brief-punkte a.b-adresse{font-weight:650;color:var(--eis-tief);text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1.5px}
+#rieb.dunkel .brief-punkte a.b-adresse{color:var(--eis)}
+#rieb .b-nr{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:var(--tinte);color:#fff!important}
+#rieb .b-nr .ic{width:18px;height:18px}
+#rieb .brief-gruss{margin:16px 0 20px!important}
+#rieb .brief-gruss b{display:block;font-size:17px;font-weight:650;margin-top:4px;color:var(--tinte)}
+#rieb .brief-ebene.weg .brief-blatt{animation:r-brief-runter .35s ease-in both}
+#rieb .brief-ebene.weg .brief-schleier{animation:r-brief-aus .4s ease-in both}
+#rieb.dunkel .brief-blatt{background:linear-gradient(180deg,#191E27,#10131A);color:var(--n-text);box-shadow:0 30px 80px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.09),inset 0 1px 0 rgba(255,255,255,.08)}
+#rieb.dunkel .brief-blatt p{color:#C9CFD8}
+#rieb.dunkel .brief-punkte li{background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px rgba(255,255,255,.07)}
+#rieb.dunkel .b-nr{background:var(--leucht);color:#06070A!important;box-shadow:0 0 18px rgba(56,189,248,.35)}
+@keyframes r-brief-ein{from{opacity:0}} @keyframes r-brief-aus{to{opacity:0}}
+@keyframes r-brief-hoch{from{opacity:0;transform:translate(-50%,-38%) scale(.96)}}
+@keyframes r-brief-punkt{from{opacity:0;transform:translateY(10px)}}
+@keyframes r-brief-runter{to{opacity:0;transform:translate(-50%,-44%) scale(.97)}}
+/* Handy: mit „Jetzt umziehen“ + „Später“ (09.10.) wurde der Brief hoeher als der
+   Bildschirm - Abstaende enger, Schriftgroessen bleiben */
+@media (max-width:500px){
+  #rieb .brief-blatt{padding:22px 18px 14px}
+  #rieb .brief-blatt p{font-size:15px;margin-bottom:10px}
+  #rieb .brief-kopf{margin-bottom:14px}
+  #rieb .brief-punkte{gap:8px;margin:4px 0 12px}
+  #rieb .brief-punkte li{padding:10px 12px;gap:10px}
+  #rieb .brief-gruss{margin:10px 0 14px!important}
+}
+/* Umzugs-Code (10.10.2026, Entwurf "umzugscode-entwurf" freigegeben): EINE Zeile
+   unter "Jetzt umziehen" - der Brief muss am Handy ohne Scrollen passen (ohne
+   die Zeile 727 von 812 px). Der Hinweis erscheint erst nach dem Kopieren. */
+#rieb .brief-app{margin:12px 0 0;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:14px;color:var(--tinte2)}
+#rieb .brief-app .knopf-klein{flex:none}
+#rieb .brief-blatt .brief-app-hinweis{margin:10px 0 0;padding:10px 12px;border-radius:14px;background:var(--t0);font-size:13.5px;line-height:1.45;color:var(--tinte2)}
+#rieb .brief-app-hinweis b{color:var(--tinte);font-weight:640}
+/* Erster Start: "Schon Rieb Spesen benutzt?" - die Einrichtung ist immer dunkel */
+#rieb .er-schon{margin:18px 0 0;display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;font-size:14px;color:#A0A8B4}
+#rieb .er-schon button{font-size:14px;font-weight:620;color:#7DD3FC;padding:6px 0}
+/* QR-Code unter "Mehr" (10.10.2026): weisses Feld - auch im dunklen Design
+   scannbar (dunkler Code auf hellem Grund) */
+#rieb .qr-feld{display:grid;place-items:center;width:max-content;margin:18px auto 10px;padding:16px;background:#fff;border-radius:20px;box-shadow:inset 0 0 0 1px rgba(14,17,22,.08)}
+#rieb .qr-feld img,#rieb .qr-feld canvas{display:block;width:220px;height:220px}
+#rieb .qr-adresse{text-align:center;font-size:17px;font-weight:640;letter-spacing:-.01em;margin:2px 0 8px}
+/* Seit 10.10.2026: eigener Schritt "Daten übertragen oder neu starten" - nach
+   "Daten übertragen" drei nummerierte Handgriffe, darunter "Daten einfügen" */
+#rieb .er-anleitung{list-style:none;counter-reset:era;margin:20px 0 16px;padding:0;display:flex;flex-direction:column;gap:12px}
+#rieb .er-anleitung li{counter-increment:era;display:grid;grid-template-columns:28px 1fr;column-gap:12px;align-items:start}
+#rieb .er-anleitung li::before{content:counter(era);grid-row:span 2;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:14px;font-weight:660;color:#0B0D12;background:var(--eis-satt)}
+#rieb .er-anleitung b{font-size:15px;font-weight:620;color:var(--n-text);line-height:1.35;padding-top:4px}
+#rieb .er-anleitung span{font-size:13px;color:var(--n-text2);line-height:1.45}/* "Mit Konto anmelden" aus der Einrichtung: Fenster UEBER der Einrichtung (1090) */
+#rieb.ebene-oben .ebene{z-index:1095}
+::view-transition-group(*){animation-duration:.66s;animation-timing-function:var(--feder)}
+::view-transition-old(flaeche),::view-transition-new(flaeche){height:100%;width:100%}
+::view-transition-old(flaeche){animation-duration:.3s}
+::view-transition-new(flaeche){animation-duration:.42s}
+html[data-vt="auf"]::view-transition-old(root){animation:r-zurueck .5s var(--sanft) both}
+html[data-vt="auf"]::view-transition-new(root){animation:r-einblenden .4s .14s ease both}
+html[data-vt="zu"]::view-transition-old(root){animation:r-ausblenden .22s ease both}
+html[data-vt="zu"]::view-transition-new(root){animation:r-vor .62s var(--sanft) both}
+::view-transition-new(blatt){animation:r-blatt-hoch .78s var(--sanft) both}
+::view-transition-old(blatt){animation:r-blatt-runter .38s cubic-bezier(.5,0,.75,0) both}
+html[data-vt="quer"]::view-transition-new(blatt){animation:r-rein-rechts .5s .05s var(--sanft) both}
+html[data-vt="quer"]::view-transition-old(blatt){animation:r-ausblenden .2s ease both}
+html[data-vt="quer"]::view-transition-new(root){animation:r-einblenden .35s ease both}
+html[data-vt="quer"]::view-transition-old(root){animation:r-ausblenden .25s ease both}
+html[data-vt="einstieg"]::view-transition-old(root){animation:r-ausblenden .5s ease both}
+html[data-vt="einstieg"]::view-transition-new(root){animation:r-einblenden .7s .1s ease both}
+html[data-vt="einstieg"]::view-transition-group(*){animation-duration:.95s}
+@keyframes r-zurueck{to{transform:scale(.93);opacity:0}}
+@keyframes r-vor{from{transform:scale(.95);opacity:0}}
+@keyframes r-einblenden{from{opacity:0}}
+@keyframes r-ausblenden{to{opacity:0}}
+@keyframes r-blatt-hoch{from{transform:translateY(55vh)}}
+@keyframes r-blatt-runter{to{transform:translateY(60vh);opacity:0}}
+.ohne-vt #rieb .bereich.aktiv .blatt{animation:r-blatt-hoch .7s var(--sanft) both}
+.ohne-vt #rieb .bereich.aktiv .b-innen{animation:r-einblenden .4s ease both}
+@media (prefers-reduced-motion:reduce){
+#rieb *,#rieb *::before,#rieb *::after,#rieb *::before,#rieb *::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.15s!important}
+#rieb #s-start::before{animation:none}
+}
+@media (min-width:760px){
+#rieb .ebene{align-items:center;justify-items:center}
+#rieb .bogen{width:500px;border-radius:30px;transform:translateY(18px) scale(.97);opacity:0;transition:transform .5s var(--sanft),opacity .3s}
+#rieb .ebene.offen .bogen{transform:none;opacity:1}
+#rieb .griff{display:none}
+#rieb .kalender{grid-template-columns:repeat(3,1fr)}
+#rieb .er-inhalt{padding-top:8vh}
+#rieb .er-inhalt h2{font-size:42px}
+}
+@media (min-width:1100px){
+#rieb .start-innen{padding:26px 40px 44px}
+#rieb .marke .zeichen{width:34px;height:34px}
+#rieb .gruss-zeile{margin:50px 4px 38px}
+#rieb .gruss{font-size:60px}
+#rieb .gruss-spruch{margin:-22px 4px 38px;font-size:17px}
+#rieb .uhr-zeit{font-size:84px}
+#rieb .uhr-s{font-size:22px;margin-top:6px;min-width:28px}
+#rieb .uhr-datum{font-size:14px;margin-top:12px}
+#rieb .bento{grid-template-columns:1.35fr 1fr 1fr;gap:16px}
+#rieb .k-spesen{grid-column:1;grid-row:1/span 2;padding:30px;min-height:0}
+#rieb .k-spesen .zahl{font-size:100px}
+#rieb .k-spesen .k-mitte{gap:14px}
+#rieb .k-spesen .segmente{height:36px}
+#rieb .k-urlaub{grid-column:2;grid-row:1/span 2;min-height:300px;padding:24px}
+#rieb .k-jahr{grid-column:3;grid-row:1/span 2;min-height:300px;padding:24px}
+#rieb .k-urlaub .zahl{font-size:56px}
+#rieb .k-jahr .zahl{font-size:40px}
+#rieb .k-urlaub .ring{width:104px;height:104px}
+#rieb .k-jahr .funken{height:64px}
+#rieb .k-heute{grid-column:1;grid-row:3;padding:18px 24px}
+#rieb .k-stempel{padding:18px 24px;margin-bottom:16px;min-height:78px}
+#rieb .mini-reihe{grid-column:2/span 2;grid-row:3}
+#rieb .k-mini{flex-direction:row;justify-content:flex-start;text-align:left;padding:14px 18px}
+#rieb .start-fuss{margin-top:34px}
+#rieb .b-kopf{padding:22px 0 70px}
+#rieb .b-kopf.kompakt{padding-bottom:62px}
+#rieb .b-innen{padding:0 40px}
+#rieb .b-nav{display:flex;gap:2px;background:rgba(255,255,255,.06);padding:4px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--n-rand)}
+#rieb .b-nav button{height:36px;padding:0 16px;border-radius:999px;font-size:13.5px;font-weight:570;color:var(--n-text2);transition:background .2s,color .2s}
+#rieb .b-nav button:hover{color:var(--n-text)}
+#rieb .b-nav button.an{background:rgba(255,255,255,.13);color:var(--n-text)}
+#rieb .b-titelzeile{margin-top:34px}
+#rieb .b-titel{font-size:20px}
+#rieb .b-kopf .zahl{font-size:96px}
+#rieb .b-kopf .segmente{height:40px;margin-top:26px}
+#rieb .mk-innen{padding:10px 40px}
+#rieb .blatt{margin-top:-38px;border-radius:34px 34px 0 0}
+#rieb .blatt-innen{padding:34px 40px 70px;display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:30px;align-items:start}
+#rieb .blatt-innen.einspaltig{grid-template-columns:minmax(0,780px);justify-content:center}
+#rieb .seite{display:flex;flex-direction:column;gap:14px;position:sticky;top:84px;order:2}
+#rieb .seite .felder{grid-template-columns:1fr}
+#rieb .seite>*{margin:0!important}
+#rieb .haupt{order:1}
+#rieb .schnell,#rieb .schnell.zwei{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0;padding:0}
+#rieb .schnell button{flex-direction:row;background:var(--t1);border-radius:18px;padding:12px;box-shadow:0 0 0 1px var(--t-rand);font-size:13.5px;text-align:left;gap:12px}
+#rieb .schnell .knopf{width:40px;height:40px;border-radius:13px;box-shadow:none;background:var(--t0)}
+#rieb .schnell .erst{background:var(--tinte)!important;color:#fff}
+#rieb .schnell .erst .knopf{background:rgba(255,255,255,.12);box-shadow:none}
+#rieb .links{justify-content:flex-start}
+#rieb .blatt-fuss{text-align:left}
+#rieb .woche:first-of-type{margin-top:14px}
+#rieb .tabellenkopf{display:grid;grid-template-columns:92px 56px 16px 56px minmax(0,1fr) 70px 84px 108px;column-gap:10px;padding:0 18px 10px 12px;
+    font-size:11px;font-weight:640;letter-spacing:.07em;text-transform:uppercase;color:var(--tinte3)}
+#rieb .tabellenkopf .r{text-align:right}
+#rieb .tag{grid-template-columns:92px 56px 16px 56px minmax(0,1fr) 70px 84px 108px;column-gap:10px;grid-template-areas:none;row-gap:0;padding:8px 18px 8px 8px;border-radius:14px;margin-bottom:6px}
+#rieb .tag>*:not(.t-lauf){grid-area:auto!important}
+#rieb .t-zeit{display:contents}
+#rieb .t-datum{flex-direction:row;justify-content:flex-start;gap:8px;height:38px;padding:0 10px;border-radius:10px}
+#rieb .t-nr{font-size:16px}
+#rieb .t-ab .chip{display:none}
+#rieb .t-status{display:block;justify-self:end}
+#rieb .tag.kommt{padding:2px 18px 2px 8px;grid-template-areas:none}
+#rieb .tag.kommt .t-datum{height:32px}
+#rieb .tag.kommt .t-orte,#rieb .tag.kommt .t-std{display:block;visibility:hidden}
+#rieb .ruhe{padding-left:20px}
+#rieb .kalender{grid-template-columns:repeat(4,1fr);gap:12px}
+#rieb .karte-stamm{margin-top:0}
+}
+
+/* ======================================================================
+   ANPASSUNGEN AN DIE LIVE-FASSUNG (von Hand, 08.10.2026)
+   ====================================================================== */
+
+/* Die Uebergaenge (View Transitions) haengen am Dokument, nicht an #rieb -
+   ihre Kurven brauchen die Variablen deshalb auch dort. */
+:root{--sanft:cubic-bezier(.22,1,.36,1);
+  --feder:linear(0, .097 5%, .298 10%, .514 15%, .7 20%, .839 25%, .933 30%, .989 35%, 1.017 40%, 1.027 45%, 1.028 50%, 1.023 55%, 1.017 60%, 1.006 70%, 1.001 80%, 1)}
+
+/* ZURUECKSETZEN, WAS DIE ALTE GESTALTUNG ALLGEMEIN VORGIBT.
+   Die alte Fassung setzt fuer JEDEN Knopf, jede Ueberschrift, jedes Feld
+   und jede Beschriftung das fruehere Firmen-Braun, Zentrierung, 48 px Mindesthoehe,
+   Raender und Hover-Spruenge (index.html: "button, .btn", "h1", "h2",
+   "input, select", "label"). Ohne diesen Block erbt die neue Oberflaeche
+   das alles - gemessen 08.10.2026: Kacheln zentriert, Tagesbalken auf
+   Nullbreite zusammengefallen, Ueberschrift braun.
+   Die Regeln des Entwurfs mit Klasse (z. B. "#rieb .kachel") sind
+   spezifischer und gewinnen weiterhin. */
+#rieb{font-size:16px;line-height:normal}
+/* :where() haelt die Gewichtung bei (1,0,0) - hoeher als jede alte Regel
+   (die haben keine Kennung), niedriger als jede Regel des Entwurfs mit
+   Klasse (1,1,0). Ohne :where() haette "#rieb button:hover" (1,1,1) beim
+   Ueberfahren die Entwurfs-Regeln ueberstimmt. */
+#rieb :where(button),#rieb :where(button:hover),#rieb :where(button:active){display:inline-block;min-height:0;align-items:normal;justify-content:normal;gap:0;
+  border-radius:0;white-space:normal;transform:none;box-shadow:none;background:none;border:0;color:inherit;transition:none;padding:0;font:inherit;text-align:left}
+#rieb :where(button:focus-visible){outline:2px solid var(--eis-satt);outline-offset:3px}
+#rieb :where(h1,h2,h3,h4){color:inherit;margin:0;letter-spacing:inherit}
+#rieb :where(h2,h3)::after{content:none}
+#rieb :where(label){display:block;margin:0;color:inherit;font-size:inherit}
+#rieb :where(input,select){min-height:0;border:0;border-radius:0;box-shadow:none;background:none;color:inherit;padding:0;width:auto;font:inherit}
+#rieb :where(input:hover,select:hover){border-color:transparent}
+#rieb :where(input:focus,select:focus){box-shadow:none;outline:none;border-color:transparent}
+/* Die alte Startseite blendet jede h1 aus ("body.hero-start h1") */
+#rieb .gruss{display:block}
+
+/* EBENEN. Die alte Oberflaeche liegt darunter weiter im Dokument (der
+   PDF-Abzug braucht den Vordruck sichtbar) und hat feste Leisten auf
+   z-index 500/600. Darueber die Bildschirme, darueber die Boegen.
+   Fenster der alten Fassung (.modal-overlay 1100: CSV-Menue, QR-Code,
+   Zuruecksetzen, Assistent ...) und das Zeit-Dreh-Rad (1200) liegen
+   bewusst DARUEBER - sie werden aus den Boegen heraus geoeffnet.
+   ⚠ Am 27.09.2026 lag das Dreh-Rad sechs Wochen lang HINTER einem
+   Fenster. Darum: Bogen 1000 < Fenster 1100 < Dreh-Rad 1200. */
+#rieb .screen{z-index:700}
+#rieb .ebene{z-index:1000}
+/* Einrichtung ueber allem ausser den Fenstern; der Einstieg ganz oben. */
+#rieb .einrichtung{z-index:1090}
+#rieb #intro{z-index:2000}
+#rieb #toast{z-index:1150}
+#rieb #korn{z-index:800;display:none}
+body.rieb-aktiv #rieb #korn{display:block}
+body.rieb-aktiv{overflow:hidden}
+/* Der Hinweis-Streifen der alten Fassung ("Monat gesperrt", "Unterschrift
+   nicht vergessen") lag auf 600 - unter den neuen Bildschirmen. */
+body.rieb-aktiv #ordnerHinweisStreifen{z-index:1050}
+/* iPhone mit offener Tastatur (14.10.2026, Mirko: „wieso sehe ich in der app wenn ich die
+   automatennummer eintippe hinter unserem design noch teile aus dem alten tool? im alten
+   design in [Firma] optik?“). iOS schiebt beim Antippen eines Feldes die ganze Seite hoch; die
+   neuen Bildschirme (position:fixed, z 700) bleiben stehen, und am Rand kam die alte
+   Oberfläche zum Vorschein, die darunter weiter im Dokument liegt (sie wird zum Rechnen und
+   Drucken gebraucht). Ein dunkler Vorhang zwischen alter Oberfläche und neuen Bildschirmen,
+   weit über die Ränder hinaus. Unter 700, damit alles Neue darüber liegt. Er FÄNGT Tipps ab
+   (kein pointer-events:none): im verschobenen Zustand traf ein Finger sonst unsichtbare
+   Knöpfe der alten Oberfläche (gemessen 14.10.2026, anzeige-pruefen.js). */
+body.rieb-aktiv::before{content:"";position:fixed;left:0;right:0;top:-100vh;bottom:-100vh;background:#EEF0F4;z-index:650}
+html.rieb-dunkel body.rieb-aktiv::before{background:#0A0C10}   /* Farbe wie das Blatt des gewählten Designs */
+/* Zweiter Schritt, 14.10.2026: Am iPhone schaute trotz Vorhang die Kachel „Fahrzeug-Inventur“
+   der ALTEN Startseite unten durch (Mirko: „fahrzeug inventur sieht man auf alle fälle unter
+   unserem neuen design durch unten im bild“). Gemessen (altes-tool-aufbau.sh): von der ganzen
+   alten Oberfläche waren nur noch die alte Startseite (#kachelStartseite, 1514 px hoch, die
+   Kachel bei 763 px = unterer Rand eines iPhones) und die alte Fußzeile eingeblendet - alles
+   andere war längst aus. Beide werden im neuen Design nicht mehr gezeichnet. !important, weil
+   der alte Code die Startseite per style= ein- und ausschaltet (zeigeKachelStartseite). Die
+   Fußzeile liefert weiter ihren Text (#footerVersion, gelesen in rieb.js renderMehr). */
+body.rieb-aktiv #kachelStartseite,body.rieb-aktiv>footer{display:none!important}
+
+/* Der heutige Tag ZAEHLT ab Tagesbeginn (Entscheidung 16) - sein Betrag
+   wird nicht ausgegraut wie im Entwurf. Die Laufleiste bleibt Anzeige. */
+#rieb .tag.heute.laeuft .t-betrag{opacity:1}
+
+/* Wochenend-/Feiertagszeilen sind antippbar (Samstag eintragen) */
+#rieb button.ruhe{width:100%;text-align:left}
+@media (hover:hover){#rieb button.ruhe:hover{color:var(--tinte2)}}
+
+/* Tage ueber 10 Std: werden nicht genehmigt - rot umrandet */
+#rieb .tag.zulang{box-shadow:0 0 0 1.5px #FCA5A5}
+#rieb .tag.zulang .t-std{color:var(--krank);font-weight:600}
+
+/* Fuenf Griffe statt vier (Abschliessen kam am 08.10. dazu), bei Mirko
+   sechs (E-Mail). */
+#rieb .schnell.schnell-5{grid-template-columns:repeat(5,1fr);gap:4px}
+#rieb .schnell.schnell-6{grid-template-columns:repeat(3,1fr);row-gap:14px}
+#rieb .schnell.schnell-5 .knopf{width:56px;height:56px}
+#rieb .schnell.schnell-5 button{font-size:11px;letter-spacing:-.01em;hyphens:auto}
+#rieb .schnell button{min-width:0}
+#rieb .schnell.zwei>:only-child{grid-column:1/-1}
+
+/* Monat abgeschlossen */
+#rieb .gesperrt{display:flex;align-items:center;gap:10px;background:#FEF3C7;color:#78350F;border-radius:16px;padding:10px 10px 10px 14px;margin:0 0 12px;font-size:13.5px;line-height:1.4}
+#rieb .gesperrt .ic{width:18px;height:18px;flex:none}
+#rieb .gesperrt span{flex:1}
+#rieb .gesperrt button{height:34px;padding:0 14px;border-radius:999px;background:var(--tinte);color:#fff;font-size:13px;font-weight:620;white-space:nowrap;flex:none}
+
+/* Nicht im laufenden Monat */
+#rieb .zu-heute{display:flex;align-items:center;gap:8px;width:100%;margin:0 0 12px;padding:10px 14px;border-radius:16px;background:#E0F2FE;color:var(--eis-tief);font-size:13.5px;font-weight:580}
+#rieb .zu-heute .ic{width:17px;height:17px;flex:none}
+
+/* Zeitfeld als Knopf: oeffnet das Zeit-Dreh-Rad */
+#rieb button.zeitfeld{width:100%;text-align:left;cursor:pointer}
+#rieb .zeitfeld b{font-size:30px;font-weight:630;letter-spacing:-.035em;font-variant-numeric:tabular-nums;color:var(--tinte);min-height:38px;line-height:38px}
+#rieb .zeitfeld b[data-wert=""]{color:var(--tinte3);font-weight:450}
+#rieb button.zeitfeld:active{box-shadow:0 0 0 2px var(--eis-satt)}
+
+/* Unterschrift-Karte (nur Mirko) */
+#rieb .karte-unterschrift{margin-top:12px}
+#rieb .karte-unterschrift p{margin:6px 0 0;font-size:12.5px;color:var(--tinte3)}
+#rieb .sig-vorschau{display:block;max-width:100%;max-height:80px;margin-top:4px}
+
+/* Weitere Einstellungen */
+#rieb .schalter-liste{display:grid;gap:8px;margin-top:16px}
+#rieb .schalter{display:flex;align-items:center;justify-content:space-between;gap:14px;background:var(--t1);border-radius:16px;padding:12px 14px;box-shadow:0 0 0 1px var(--t-rand);cursor:pointer}
+#rieb .karte .schalter{box-shadow:none;background:var(--t0)}
+#rieb .schalter b{display:block;font-size:14.5px;font-weight:620}
+#rieb .schalter small{display:block;font-size:12px;color:var(--tinte3);margin-top:2px;line-height:1.4}
+#rieb .schalter input{width:22px;height:22px;flex:none;accent-color:var(--tinte)}
+
+/* Ordner-Liste */
+#rieb .archiv-zeile{cursor:default}
+#rieb .archiv-knoepfe{display:flex;gap:6px;flex:none}
+#rieb .archiv-knoepfe .knopf-klein{height:32px;padding:0 12px;background:var(--t0)}
+
+/* Anleitung: Video und schriftliche Anleitung (iframe) */
+/* PC-Video 1280 x 800 = 16:10 (10.10.2026; bis dahin 16:9 fuer das alte Video -
+   das neue bekam schwarze Balken links und rechts, anleitung-video-pruefen) */
+#rieb .video video{display:block;width:100%;aspect-ratio:1280/800;background:#000}
+/* Handy-Video ist hochkant (393 x 852, 10.10.2026): nicht in den 16:9-Kasten
+   quetschen - hochkant, mittig, hoechstens so hoch, dass es mit dem Kopf auf
+   den Bildschirm passt. Umgeschaltet nur nach Breite (rieb.js anleitungVideo). */
+#rieb .video.hoch video{aspect-ratio:393/852;width:auto;height:auto;max-width:100%;max-height:calc(100dvh - 170px);margin:0 auto}
+/* Anleitung (Teil E, 09.10.2026): Anleitung.html bringt ihre Karten selbst mit,
+   folgt Hell/Dunkel und setzt die Hoehe des Rahmens auf ihre volle Laenge -
+   70vh gilt nur, bis sie geladen ist. Durchsichtig, damit Dunkel durchscheint. */
+#rieb .anleitung-rahmen{display:block;width:100%;height:70vh;border:0;background:transparent;margin-top:14px;color-scheme:normal}
+
+/* Kalender im Urlaub: Tage antippbar */
+#rieb .mgitter button.d{border:0;background:none;font:inherit;cursor:pointer;padding:0}
+#rieb .mgitter button.d.fei{background:var(--feier-bg)}
+#rieb .mgitter button.d.urlaub{background:#22A55A}
+#rieb .mgitter button.d.krank{background:#DC2626}
+#rieb .mgitter button.d.frei{background:#94A3B8}
+#rieb .mgitter button.d.sonderurlaub{background:#7C3AED;color:#fff;font-weight:640}
+#rieb .mgitter button.d.elternzeit{background:#CA8A04;color:#fff;font-weight:640}
+
+/* Ersteinrichtung: Ja/Nein nebeneinander, Datumsfelder */
+#rieb .er-wahl{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#rieb .er-wahl .er-rolle{margin-top:0;justify-content:center}
+#rieb .er-zeiten .er-feld+.er-feld{margin-top:0}
+#rieb .er-feld input[type=date]{font-size:17px}
+
+/* Mirkos Bereiche (alte Oberflaeche) als eigene Reihe auf der Startseite */
+#rieb .mini-reihe.sonder{grid-column:1/-1}
+@media (min-width:1100px){
+  #rieb .mini-reihe.sonder{grid-row:4}
+  #rieb .schnell.schnell-5 .erst{grid-column:1/-1}
+  #rieb .schnell.schnell-5,#rieb .schnell.schnell-6{grid-template-columns:1fr 1fr;gap:10px}
+  #rieb .schnell.schnell-5 .knopf{width:40px;height:40px}
+}
+
+/* ======================================================================
+   DIE ALTE OBERFLAECHE NEUTRAL (08.10.2026)
+   Was von der alten Fassung noch zu sehen ist - ihre Fenster (PDF-
+   Vorschau, Zeit-Dreh-Rad, CSV-Menue, QR-Code, Zuruecksetzen, Aenderungs-
+   historie) und Mirkos Bereiche Inventur/Ware/Zeit - traegt hier keine
+   frueheren Firmenfarben mehr ("[Firma] weg ... neues design neue farben", Mirko
+   07.10.2026). Die alten Variablen behalten ihre NAMEN (--accent,
+   --brand-dark ...), bekommen aber die Toene des Entwurfs. rieb.css wird
+   nach dem alten <style> geladen und gewinnt damit.
+
+   ⛔ DER VORDRUCK (#formular) BLEIBT UNBERUEHRT - Entscheidung 6 ("Blatt
+   fuer Blatt wie heute"). Er nutzt diese Variablen nicht (nachgesehen:
+   eigene Schrift, Rahmen #333, im PDF Kopf- und Gesamtzeile weiss). Sein
+   helles Orange (#formular th, .gesamt-row) steht fest im alten <style>
+   und wird hier bewusst NICHT umgefaerbt. Pixelvergleich des Ausdrucks
+   vorher/nachher: Neues Design/pruef-bilder/.
+   ====================================================================== */
+:root{
+  --accent:#0369A1;          /* war fruehere Firmenfarbe Orange #de7008 */
+  --brand-dark:#0E1116;      /* war fruehere Firmenfarbe Braun #612a00 */
+  --bg:#EEF0F4;              /* war fruehere Firmenfarbe Creme #f0e7d8 */
+  --braun-tief:#10131A;
+  --auf-orange:#FFFFFF;
+  --leise:#5F6878;
+  --orange-text:#0369A1;
+  --orange-linie:#7DD3FC;
+  --kartenrand:#C9D0DA;
+  --diagramm-plus:#0369A1;
+  --diagramm-minus:#B45309;
+  --ordner-spesen:#0284C7;
+  --ordner-abrechnung:#334155;
+}
+body{font-family:"Geist",-apple-system,Helvetica,Arial,sans-serif}
+/* Hauptknopf wie im Entwurf: Tinte statt Orange */
+button.primary{background:#0E1116;border-color:#0E1116;color:#fff;box-shadow:0 6px 16px rgba(14,17,22,.20)}
+button.primary:hover{background:#1F2530;border-color:#1F2530;box-shadow:0 8px 20px rgba(14,17,22,.26)}
+button:hover,.btn:hover{background:#F7F8FA;box-shadow:0 4px 10px rgba(14,17,22,.10)}
+button.primary:hover{background:#1F2530}
+/* Fenster und Zeit-Dreh-Rad: runder, ruhiger - wie die Boegen */
+.modal-box{border-radius:24px;box-shadow:0 24px 60px rgba(0,0,0,.35)}
+.modal-box h2{letter-spacing:-.02em}
+.panel h2::after,.modal-box h2::after{background:#38BDF8}
+.time-wheel-modal{border-radius:24px}
+.time-wheel-highlight{background:rgba(56,189,248,.08)}
+/* Arbeitszeit-Jahresdruck: Kopfzeile war noch im frueheren Firmen-Pfirsich (#FDE9DC) -
+   gefunden 08.10.2026 beim Pruefen des Ausdrucks. Jetzt wie der Monatsdruck
+   (zeitMonatBlattHtml: #EEF0F4). Der Spesennachweis (#formular) bleibt
+   bewusst unberuehrt - Entscheidung 6. */
+.az-jahr-tab th{background:#EEF0F4}
+/* PDF-Vorschau des Spesennachweises (10.10.2026): Rahmen wie die Boegen der
+   neuen Oberflaeche. NUR der Rahmen - das Dokument selbst bleibt (Mirko: "das
+   dokument nicht verändern"). Eigene Klasse .pdfv: die Inventur-Vorschau
+   (ebenfalls .pdf-preview-box) bleibt, wie sie ist. */
+.pdfv{padding:18px 18px 14px;border-radius:26px}
+.pdfv .ic{fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}   /* wie #rieb .ic - das Fenster liegt ausserhalb von #rieb */
+.pdfv .pdfv-kopf{flex-wrap:nowrap;align-items:flex-start;margin-bottom:12px}
+.pdfv .pdfv-ueber{font-size:12.5px;color:#5F6878;font-weight:560;margin-bottom:2px}
+.pdfv .pdfv-kopf h2{font-size:22px;font-weight:640;letter-spacing:-.025em;margin:0;color:#0E1116}
+.pdfv .pdfv-kopf h2::after{display:none}
+.pdfv .pdfv-zu{width:42px;height:42px;flex:none;border-radius:50%;display:grid;place-items:center;padding:0;background:#fff;border:0;box-shadow:inset 0 0 0 1px #DDE2E8,0 4px 12px rgba(14,17,22,.08);color:#0E1116}
+.pdfv .pdfv-zu svg{width:18px;height:18px}
+.pdfv .pdfv-knoepfe{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.pdfv .pdfv-knoepfe button{display:flex;align-items:center;justify-content:center;gap:8px;height:46px;border-radius:14px;font-size:15px;font-weight:620;padding:0 12px}
+.pdfv .pdfv-knoepfe button:not(.primary){background:#fff;border:0;box-shadow:inset 0 0 0 1px #DDE2E8;color:#0E1116}
+.pdfv .pdfv-knoepfe svg{width:18px;height:18px;flex:none}
+.pdfv .pdfv-hinweis{display:flex;gap:10px;align-items:flex-start;background:#EAF6FD;border-radius:14px;padding:10px 14px;margin-bottom:10px;font-size:13.5px;line-height:1.45;color:#0E1116}
+.pdfv .pdfv-hinweis svg{width:18px;height:18px;flex:none;margin-top:1px;color:#0369A1}
+.pdfv .pdf-preview-frame{border:0;border-radius:14px;box-shadow:inset 0 0 0 1px #DDE2E8}
+input:focus,select:focus{box-shadow:0 0 0 3px rgba(56,189,248,.25);border-color:#0E1116}
+
+/* ======================================================================
+   ZEIT - Stechuhr, nur wer zeigtZeit() hat (Mirko). 08.10.2026, nach
+   Neues Design/mirko-entwurf.html?b=zeit: hell Fassung A (Kopf mit Schimmer,
+   Tagesbalken, Blatt hell), dunkel Fassung B (Regeln im Block DESIGN unten).
+   ====================================================================== */
+#rieb{--z-plus:#15803D;--z-plus-bg:#DCFCE7;--z-minus:#B91C1C;--z-minus-bg:#FEE2E2}
+#rieb :is(#s-zeit,#s-ware,#s-inventur) .b-grund{background:
+    radial-gradient(70% 60% at 90% 0%, rgba(56,189,248,.26), transparent 70%),
+    linear-gradient(180deg,rgba(255,255,255,.085),rgba(255,255,255,.03)),var(--n1)}
+/* Tagesbalken: gruen ueber dem Soll, rot darunter (wie der alte Kalender) */
+#rieb .seg.plus{background:linear-gradient(180deg,#86EFAC,#22C55E);box-shadow:0 0 10px rgba(34,197,94,.35)}
+#rieb .seg.minus{background:linear-gradient(180deg,#FCA5A5,#EF4444);box-shadow:0 0 10px rgba(239,68,68,.35)}
+/* Stechuhr: leuchtet wie die Uhr der Startseite - in beiden Designs dunkel */
+#rieb .karte.stechuhr{text-align:center;padding:22px 18px 18px;color:var(--n-text);
+  background:radial-gradient(80% 70% at 85% 0%, rgba(56,189,248,.22), transparent 70%),linear-gradient(180deg,#171B23,#0A0C10);
+  box-shadow:0 0 0 1px rgba(255,255,255,.07),0 18px 40px rgba(10,12,16,.22)}
+#rieb .stechuhr .uhr-gross{font-size:52px;font-weight:260;letter-spacing:-.02em;line-height:1.05;font-variant-numeric:tabular-nums;color:#E6F6FF;
+  text-shadow:0 0 22px rgba(56,189,248,.5),0 0 2px rgba(125,211,252,.4)}
+#rieb .stechuhr.laeuft .uhr-gross{animation:r-uhr-puls 2.6s ease-in-out infinite}
+@keyframes r-uhr-puls{50%{text-shadow:0 0 34px rgba(56,189,248,.8),0 0 2px rgba(125,211,252,.5)}}
+#rieb .stechuhr p{margin:6px 0 16px;color:var(--n-text2);font-size:13px}
+#rieb .stechuhr p b{color:var(--n-text)}
+#rieb .stechuhr .haupt-knopf.stempel{background:linear-gradient(180deg,#B9ECFF,#38BDF8);color:#06070A;box-shadow:0 10px 28px rgba(56,189,248,.35)}
+#rieb .stechuhr .haupt-knopf.stempel.aus{background:linear-gradient(180deg,#FECACA,#F87171);color:#06070A;box-shadow:0 10px 28px rgba(248,113,113,.3)}
+#rieb .stechuhr .neben{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+#rieb .stechuhr .neben button{min-height:44px;padding:4px 10px;border-radius:14px;background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px var(--n-rand);
+  color:var(--n-text);font-size:13.5px;font-weight:580;text-align:center;line-height:1.25}
+#rieb #s-zeit .schnell{margin-top:14px}
+#rieb #s-zeit .z-vorgaben{margin-bottom:12px}
+#rieb .z-soll{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+#rieb .z-soll b{font-size:24px;font-weight:640;letter-spacing:-.03em}
+#rieb .z-soll span{font-size:13px;color:var(--tinte2)}
+/* Monatskalender */
+#rieb .zkal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;text-align:center;font-variant-numeric:tabular-nums}
+#rieb .zkal .k{font-size:10.5px;color:var(--tinte3);font-weight:640;padding-bottom:2px}
+#rieb .zkal .d{height:48px;border-radius:10px;background:var(--t0);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  color:var(--tinte);text-align:center;transition:transform .2s var(--sanft)}
+#rieb .zkal .d:active{transform:scale(.94)}
+#rieb .zkal .d b{font-size:13px;font-weight:600;line-height:1.1;white-space:nowrap}
+#rieb .zkal .d small{font-size:10px;line-height:1.1;min-height:11px;color:var(--tinte2)}
+#rieb .zkal .d.we{background:transparent;color:#B5BCC7}
+#rieb .zkal .d.fei{background:var(--feier-bg);color:var(--feier)}
+#rieb .zkal .d.plus{background:var(--z-plus-bg);color:var(--z-plus)}
+#rieb .zkal .d.minus{background:var(--z-minus-bg);color:var(--z-minus)}
+#rieb .zkal .d.plus small,#rieb .zkal .d.minus small,#rieb .zkal .d.we small{color:inherit}
+#rieb .zkal .d.heute{box-shadow:0 0 0 1.6px var(--eis-satt)}
+#rieb .zkal .d.laeuft{box-shadow:0 0 0 1.6px var(--eis-satt),0 0 14px rgba(56,189,248,.4)}
+#rieb .zeile-klein{display:flex;justify-content:space-between;gap:12px;font-size:13.5px;padding:10px 2px 0;margin-top:10px;border-top:1px solid var(--t-rand)}
+#rieb .zeile-klein b{font-variant-numeric:tabular-nums;font-weight:650}
+#rieb .zeile-klein.leise{color:var(--tinte2);font-size:12.5px;border-top:0;margin-top:0;padding-top:6px}
+#rieb .z-plus{color:var(--z-plus)}
+#rieb .z-minus{color:var(--z-minus)}
+/* Jahr: Balken nach oben (Plus) und unten (Minus) von der Nulllinie */
+#rieb .monat-wahl.klein{background:var(--t0);box-shadow:none}
+#rieb .monat-wahl.klein button{width:30px;height:30px;color:var(--tinte2)}
+#rieb .monat-wahl.klein span{min-width:52px;font-size:13.5px;color:var(--tinte)}
+#rieb .zjahr{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:5px;height:180px;margin:8px 0 4px}
+#rieb .zj-spalte{display:grid;grid-template-rows:1fr 1fr auto;min-width:0}
+#rieb .zj-oben,#rieb .zj-unten{display:flex;flex-direction:column;align-items:center;min-height:0}
+#rieb .zj-oben{justify-content:flex-end;border-bottom:1px solid var(--t-rand)}
+#rieb .zj-unten{justify-content:flex-start}
+#rieb .zjahr i{display:block;width:100%;max-width:26px;flex:none;animation:r-seg-auf .8s var(--sanft) both}
+#rieb .zj-oben i{border-radius:6px 6px 2px 2px;background:linear-gradient(180deg,#86EFAC,#22C55E);transform-origin:bottom}
+#rieb .zj-unten i{border-radius:2px 2px 6px 6px;background:linear-gradient(180deg,#EF4444,#FCA5A5);transform-origin:top}
+#rieb .zjahr span{display:none;font-size:9.5px;color:var(--tinte3);white-space:nowrap;margin:2px 0;font-variant-numeric:tabular-nums}
+#rieb .zjahr small{font-size:10px;color:var(--tinte3);text-align:center;margin-top:4px;font-weight:560}
+@media (min-width:760px){#rieb .zjahr span{display:block}}
+/* Boegen der Zeit */
+#rieb .z-eintraege{margin-top:12px}
+#rieb .z-eintraege .zeile.an{box-shadow:inset 3px 0 0 var(--eis-satt)}
+#rieb .text-knopf.gefahr{color:var(--krank)}
+#rieb .haupt-knopf:disabled{opacity:.4;cursor:default}
+#rieb .z-alt{font-size:13.5px;line-height:1.5}
+#rieb .z-alt table{margin-top:8px;border-collapse:collapse;font-size:12.5px}
+#rieb .z-alt td{padding:2px 10px 2px 0}
+#rieb .z-alt b{color:var(--tinte)}
+/* Texte der Live-Fassung (azNachVorschau, azFuellVorschau, azPausenErklaerung)
+   tragen ihre Farben im style-Attribut - hier auf die Farben des Designs. */
+#rieb .z-alt [style*="#666"],#rieb .z-alt [style*="#888"]{color:var(--tinte3)!important}
+#rieb .z-alt [style*="#1a7f37"]{color:var(--z-plus)!important}
+#rieb .z-alt [style*="#c0392b"]{color:var(--z-minus)!important}
+
+/* ======================================================================
+   NEUE WARE ZAEHLEN - nur Mirko. 08.10.2026, nach mirko-entwurf.html?b=ware
+   (hell A, dunkel B). Ring im Kopf: gezaehlt gegen Lieferschein.
+   ====================================================================== */
+#rieb .ring-box{position:relative;flex:none}
+#rieb .ring-box .ring-mitte{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1}
+#rieb .ring-mitte b{font-size:21px;font-weight:640;color:#FCA5A5;font-variant-numeric:tabular-nums}
+#rieb .ring-mitte.passt b{color:#86EFAC}
+#rieb .ring-mitte small{font-size:10.5px;color:var(--n-text2);font-weight:560}
+#rieb .w-abgleich .feld b{font-size:15px;font-weight:620;font-variant-numeric:tabular-nums;color:var(--tinte);line-height:22px}
+#rieb .w-urteil{display:flex;gap:8px;align-items:flex-start;margin:12px 2px 0;font-size:13px;line-height:1.45;color:var(--tinte2)}
+#rieb .w-urteil .punkt{flex:none;width:8px;height:8px;border-radius:50%;margin-top:5px;background:var(--tinte3)}
+#rieb .w-urteil.passt{color:var(--z-plus)} #rieb .w-urteil.passt .punkt{background:var(--z-plus)}
+#rieb .w-urteil.abweichung{color:var(--z-minus)} #rieb .w-urteil.abweichung .punkt{background:var(--z-minus)}
+#rieb .w-kopf,#rieb .w-reihe{display:grid;grid-template-columns:24px minmax(0,1fr) 78px minmax(0,1fr) 44px;gap:7px;align-items:center}
+#rieb .w-kopf{font-size:10.5px;font-weight:640;letter-spacing:.06em;text-transform:uppercase;color:var(--tinte3);padding:0 0 6px;line-height:1.2}
+#rieb .w-reihe{padding:8px 0;border-top:1px solid var(--t-rand)}
+#rieb .w-reihe .nr{font-size:12px;color:var(--tinte3);text-align:right;font-variant-numeric:tabular-nums}
+#rieb .w-reihe.voll .nr{color:var(--eis-tief);font-weight:700}
+#rieb .w-reihe .eingabe{height:44px;width:100%;min-width:0;border-radius:12px;background:var(--t0);padding:0 10px;font-size:16px;font-weight:580;color:var(--tinte);font-variant-numeric:tabular-nums}
+#rieb .w-reihe select.eingabe{padding:0 6px;-webkit-appearance:menulist;appearance:auto}
+#rieb .w-reihe .eingabe::placeholder{color:#9AA3AF;font-weight:450;font-size:14px}
+#rieb .w-reihe .eingabe:focus{box-shadow:0 0 0 2px var(--eis-satt)}
+#rieb .w-zaehl{width:44px;height:44px;border-radius:12px;background:var(--t0);display:grid;place-items:center;color:var(--tinte2)}
+#rieb .w-zaehl .ic{width:20px;height:20px}
+#rieb .w-zs{grid-column:2/-1;font-size:12.5px;color:var(--tinte2);text-align:right;margin-top:-2px}
+#rieb .w-zs:empty{display:none}
+/* Zaehlwerk: grosse Flaeche - man schaut die Ware an, nicht das Display */
+#rieb .w-flaeche{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;width:100%;height:44vh;max-height:340px;min-height:220px;margin-top:14px;
+  border-radius:26px;touch-action:manipulation;-webkit-user-select:none;user-select:none;text-align:center;color:var(--n-text);
+  background:radial-gradient(80% 70% at 85% 0%, rgba(56,189,248,.22), transparent 70%),linear-gradient(180deg,#171B23,#0A0C10);
+  box-shadow:0 0 0 1px rgba(255,255,255,.07);transition:transform .12s ease}
+#rieb .w-flaeche:active{transform:scale(.985)}
+#rieb .w-zahl{font-size:96px;font-weight:260;line-height:1;font-variant-numeric:tabular-nums;color:#E6F6FF;text-shadow:0 0 26px rgba(56,189,248,.55)}
+#rieb .w-flaeche span:last-child{font-size:13px;color:var(--n-text2)}
+#rieb .w-leiste{display:flex;gap:8px;justify-content:center;margin:12px 0}
+
+/* ======================================================================
+   FAHRZEUG-INVENTUR - nur Mirko. 08.10.2026, nach mirko-entwurf.html?b=inventur
+   (hell A, dunkel B). Kopf: Istbestand, Umschalter Erfassen | Blatt, Anteil je
+   Warengruppe. Die Karten je Warengruppe sind Abschnitte EINER durchlaufenden
+   Liste (wie die Live-Fassung). "Blatt" = Aufnahme des echten Vordrucks.
+   ====================================================================== */
+#rieb .ansicht{display:flex;flex:none;background:rgba(255,255,255,.07);border-radius:999px;padding:3px;box-shadow:inset 0 0 0 1px var(--n-rand)}
+#rieb .ansicht button{height:34px;padding:0 14px;border-radius:999px;font-size:13.5px;font-weight:580;color:var(--n-text2);text-align:center;transition:background .2s,color .2s}
+#rieb .ansicht button.an{background:rgba(255,255,255,.14);color:var(--n-text)}
+#rieb .anteil{margin-top:20px}
+#rieb .anteil-bahn{display:flex;gap:3px;height:12px;border-radius:6px;overflow:hidden;background:rgba(255,255,255,.08)}
+#rieb .anteil-bahn i{display:block;height:100%;min-width:3px;transform-origin:left}
+#rieb .anteil.erscheint .anteil-bahn i{animation:r-anteil 1.1s .15s var(--sanft) both}
+@keyframes r-anteil{from{transform:scaleX(0)}}
+/* Eine Farbe je Warengruppe - dieselbe Gruppe hat immer dieselbe Farbe */
+#rieb .anteil i.g1{background:linear-gradient(180deg,#B9ECFF,#38BDF8);box-shadow:0 0 12px rgba(56,189,248,.42)}
+#rieb .anteil i.g2{background:linear-gradient(180deg,#C7D2FE,#818CF8);box-shadow:0 0 12px rgba(129,140,248,.4)}
+#rieb .anteil i.g3{background:linear-gradient(180deg,#DDD6FE,#A78BFA);box-shadow:0 0 12px rgba(167,139,250,.38)}
+#rieb .anteil i.g4{background:linear-gradient(180deg,#99F6E4,#2DD4BF);box-shadow:0 0 12px rgba(45,212,191,.35)}
+#rieb .anteil i.g5{background:linear-gradient(180deg,#BFDBFE,#60A5FA);box-shadow:0 0 12px rgba(96,165,250,.38)}
+#rieb .anteil i.g6{background:linear-gradient(180deg,#CFFAFE,#67E8F9);box-shadow:0 0 12px rgba(103,232,249,.35)}
+#rieb .anteil i.g7{background:linear-gradient(180deg,#E2E8F0,#94A3B8)}
+#rieb .anteil-legende{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:11px;font-size:12.5px;color:var(--n-text2)}
+#rieb .anteil-legende span{display:inline-flex;align-items:center;gap:7px}
+#rieb .anteil-legende i{display:block;width:8px;height:8px;border-radius:50%;flex:none}
+#rieb .anteil-legende b{color:var(--n-text);font-weight:620;font-variant-numeric:tabular-nums}
+#rieb .anteil-legende .leer{color:var(--n-text3)}
+#rieb .i-hinweis{margin-bottom:12px}
+#rieb .i-unterschrift{order:2}
+#rieb #s-inventur .haupt>.karte+.karte{margin-top:12px}
+#rieb .gruppe-kopf{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:6px}
+#rieb .gruppe-kopf b{font-size:15px;font-weight:640;letter-spacing:-.01em}
+#rieb .gruppe-kopf span{font-size:13px;color:var(--tinte2);font-variant-numeric:tabular-nums}
+#rieb .i-kopf,#rieb .i-reihe{display:grid;grid-template-columns:24px minmax(0,1fr) minmax(0,1fr) 84px;gap:8px;align-items:center}
+#rieb .i-kopf{font-size:10.5px;font-weight:640;letter-spacing:.06em;text-transform:uppercase;color:var(--tinte3);padding:0 0 6px;line-height:1.2}
+#rieb .i-kopf .r{text-align:right}
+#rieb .i-reihe{padding:7px 0;border-top:1px solid var(--t-rand)}
+#rieb .i-reihe .nr{font-size:12px;color:var(--tinte3);text-align:right;font-variant-numeric:tabular-nums}
+#rieb .i-reihe.voll .nr{color:var(--eis-tief);font-weight:700}
+#rieb .i-reihe .eingabe{height:44px;width:100%;min-width:0;border-radius:12px;background:var(--t0);padding:0 12px;font-size:16px;font-weight:580;color:var(--tinte);font-variant-numeric:tabular-nums}
+#rieb .i-reihe .eingabe::placeholder{color:#9AA3AF;font-weight:450;font-size:14px}
+#rieb .i-reihe .eingabe:focus{box-shadow:0 0 0 2px var(--eis-satt)}
+#rieb .i-su{text-align:right;font-weight:640;font-variant-numeric:tabular-nums;color:var(--tinte);white-space:nowrap}
+#rieb .i-reihe:not(.voll) .i-su{color:var(--tinte3);font-weight:450}
+#rieb .i-trenner{font-size:11.5px;font-weight:600;color:var(--tinte3);text-align:center;padding:10px 0 8px;border-top:1px dashed var(--t-rand)}
+/* Zählen per Sprache (14.10.2026): freiwilliges Sprechfeld über den Warengruppen. Nur nach Breite, nie nach App/Browser (CLAUDE.md). */
+#rieb .i-sprechen{display:flex;flex-direction:column;gap:10px}
+#rieb .i-sprechen .klein-text{margin:0 2px}
+#rieb .i-sprechen textarea{width:100%;min-height:64px;border:0;border-radius:12px;background:var(--t0);color:var(--tinte);font:inherit;font-size:16px;font-weight:520;line-height:1.45;padding:10px 12px;resize:vertical;outline:none}
+#rieb .i-sprechen textarea::placeholder{color:#9AA3AF;font-weight:450;font-size:14px}
+#rieb.dunkel .i-sprechen textarea::placeholder{color:var(--n-text3)}
+#rieb .i-sprechen textarea:focus{box-shadow:0 0 0 2px var(--eis-satt)}
+#rieb :is(#iSpracheVorschau,#wSpracheVorschau){display:flex;flex-direction:column;gap:10px}
+#rieb :is(#iSpracheVorschau,#wSpracheVorschau):empty{display:none}
+#rieb #s-ware .haupt>.w-sprechen+.karte{margin-top:12px}
+#rieb .i-sp-zeile{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:8px 0;border-top:1px solid var(--t-rand);font-variant-numeric:tabular-nums}
+#rieb .i-sp-zeile b{font-size:15px;font-weight:640;color:var(--tinte)}
+#rieb .i-sp-zeile small{display:block;font-size:12px;color:var(--tinte3);margin-top:2px}
+#rieb .i-sp-zeile .r{font-weight:640;color:var(--tinte);white-space:nowrap}
+#rieb .i-sp-summe{font-weight:660;color:var(--tinte)}
+#rieb .i-sp-knoepfe{display:flex;flex-direction:column;gap:10px}
+#rieb .i-sp-knoepfe .knopf-klein{align-self:center}
+#rieb .i-sp-ok{margin:0 2px;color:var(--tinte2);font-weight:620}
+#rieb .i-trenner+.i-reihe{border-top:0}
+#rieb .i-zeilen{margin:12px 4px}
+#rieb .i-lief .klein-text{margin:2px 0 0}
+/* ---- Ansicht "Blatt": der Vordruck im NEUEN Design (freigegeben 08.10.2026,
+   Neues Design/inventur-blatt-entwurf.html). Dieselben Spalten, Zeilen und
+   Felder an derselben Stelle wie der Vordruck: Kopf 17/10/15/25/33 %, Raster
+   6 gleich breite Spalten, Fuss 2/3 Betraege + 1/3 Unterschriften.
+   ⛔ Gilt NUR fuer die Ansicht hier. Ausdruck und PDF sind weiterhin der
+   Original-Vordruck (#invBlatt, ausserhalb von #rieb - keine Regel hier
+   erreicht ihn). Am Handy seitlich wischen, am PC volle Breite. ---- */
+#rieb .vb-innen{display:flex;flex-direction:column}
+#rieb .vb-innen .schnell{margin-bottom:16px}
+#rieb .vb-wisch{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -16px;padding:0 16px 6px}
+#rieb .vb-wisch-text{font-size:12.5px;color:var(--tinte3);margin:2px 2px 10px}
+#rieb .vb{width:100%;min-width:1040px;background:var(--t1);border-radius:22px;padding:20px 22px 22px;box-shadow:0 0 0 1px var(--t-rand);color:var(--tinte);font-variant-numeric:tabular-nums}
+#rieb .vb-klein{font-size:10px;font-weight:640;letter-spacing:.07em;text-transform:uppercase;color:var(--tinte3)}
+#rieb .vb .vb-e{display:block;width:100%;min-width:0;height:19px;border-radius:6px;background:var(--t0);padding:0 4px;font-size:12px;font-weight:580;color:var(--tinte);text-align:center;font-variant-numeric:tabular-nums}
+#rieb .vb .vb-e:focus{outline:none;box-shadow:0 0 0 2px var(--eis-satt)}
+#rieb .vb-kopf{display:grid;grid-template-columns:17% 10% 15% 25% 33%;grid-template-rows:auto auto;row-gap:8px;align-items:end}
+#rieb .vb-titel{grid-row:1/3;align-self:start;display:flex;flex-direction:column;gap:10px}
+#rieb .vb-titel b{font-size:19px;font-weight:680;letter-spacing:-.02em;white-space:nowrap}
+#rieb .vb-tour{display:flex;align-items:center;gap:8px}
+#rieb .vb-tour .vb-wert{width:64px}
+#rieb .vb-zelle{display:flex;flex-direction:column;gap:4px;padding-left:10px;min-width:0}
+#rieb .vb button.vb-wert,#rieb .vb .vb-nl{height:32px;border-radius:10px;background:var(--t0);display:flex;align-items:center;padding:0 11px;font-size:14px;font-weight:600;color:var(--tinte);white-space:nowrap;overflow:hidden;width:100%}
+#rieb .vb .vb-nl{justify-content:center;font-size:15px;font-weight:680}
+#rieb .vb button.vb-wert:active,#rieb .vb button.vb-uw:active,#rieb .vb button.fix:active{box-shadow:0 0 0 2px var(--eis-satt)}
+#rieb .vb-zwi{grid-column:2/5;padding-left:10px}
+#rieb .vb-zwi span{display:flex;align-items:center;height:30px;border-radius:10px;box-shadow:inset 0 0 0 1px var(--t-rand);padding:0 12px;font-size:13px;font-weight:640;letter-spacing:.02em}
+#rieb .vb-raster{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));margin-top:16px;border-top:1px solid var(--t-rand)}
+#rieb .vb-spalte{padding:10px 8px 0;border-left:1px solid var(--t-rand);min-width:0}
+#rieb .vb-spalte:first-child{border-left:0;padding-left:0}
+#rieb .vb-spalte:last-child{padding-right:0}
+#rieb .vb-gtitel{display:flex;align-items:center;gap:6px;height:18px;font-size:12px;font-weight:660;white-space:nowrap}
+#rieb .vb-gtitel i{width:8px;height:8px;border-radius:50%;flex:none}
+#rieb .vb-gtitel i.g1{background:#38BDF8} #rieb .vb-gtitel i.g2{background:#818CF8} #rieb .vb-gtitel i.g3{background:#A78BFA}
+#rieb .vb-gtitel i.g4{background:#2DD4BF} #rieb .vb-gtitel i.g5{background:#60A5FA} #rieb .vb-gtitel i.g6{background:#67E8F9} #rieb .vb-gtitel i.g7{background:#94A3B8}
+#rieb .vb-gtitel.leer{visibility:hidden}
+#rieb .vb-skopf,#rieb .vb-z,#rieb .vb-sub{display:grid;grid-template-columns:27% 32% minmax(0,1fr);gap:3px;align-items:center}
+#rieb .vb-lief :is(.vb-skopf,.vb-z,.vb-sub){grid-template-columns:22% 26% minmax(0,1fr)}
+#rieb .vb-skopf{height:18px;margin-top:2px}
+#rieb :is(.vb-skopf,.vb-sub) span{font-size:9.5px;font-weight:640;letter-spacing:.05em;text-transform:uppercase;color:var(--tinte3);text-align:center}
+#rieb :is(.vb-skopf,.vb-sub) span:last-child{text-align:right}
+#rieb .vb-z{height:22px}
+#rieb .vb-su{text-align:right;font-size:12px;font-weight:600;color:var(--tinte);padding-right:2px;white-space:nowrap}
+#rieb .vb-fest{font-size:11px;font-weight:700;padding-left:3px}
+#rieb .vb-sub{height:22px}
+#rieb .vb-summe{display:flex;justify-content:space-between;align-items:center;height:26px;margin-top:3px;border-top:1px solid var(--t-rand);font-size:12px}
+#rieb .vb-summe b{font-weight:700}
+#rieb .vb-summe span{color:var(--tinte2)}
+#rieb .vb-luecke{height:22px}
+#rieb .vb-fuss{display:grid;grid-template-columns:66.67% 33.33%;margin-top:14px;border-top:1px solid var(--t-rand);padding-top:12px}
+#rieb .vb-betrag{display:grid;grid-template-columns:22% 13% 15% 5% 27.5% 8.75% 8.75%;row-gap:6px;align-items:center;font-size:13px}
+#rieb .vb-betrag .lab{font-weight:660}
+#rieb .vb-betrag .eh{color:var(--tinte2)}
+#rieb .vb-betrag .wert{height:28px;border-radius:9px;background:var(--t0);display:flex;align-items:center;justify-content:flex-end;padding:0 10px;font-weight:660}
+#rieb .vb-betrag .wert.hand{background:transparent;box-shadow:inset 0 0 0 1.5px var(--t-rand);color:var(--tinte3);font-weight:450;font-size:11px;justify-content:center}
+#rieb .vb .vb-betrag .vb-e.frei{height:28px;border-radius:9px;background:transparent;box-shadow:inset 0 0 0 1.5px var(--t-rand);font-size:13px}
+#rieb .vb .vb-betrag .vb-e.gross{grid-row:span 2;align-self:stretch;height:auto;border-radius:9px;background:transparent;box-shadow:inset 0 0 0 1.5px var(--t-rand);margin-right:10px;width:auto;font-size:13px}
+#rieb .vb .vb-betrag .vb-e:is(.frei,.gross):focus{box-shadow:0 0 0 2px var(--eis-satt)}
+#rieb .vb-betrag .jn{text-align:center;font-size:10px;font-weight:640;letter-spacing:.05em;text-transform:uppercase;color:var(--tinte3)}
+#rieb .vb-betrag .haken{justify-self:center;width:22px;height:22px;border-radius:7px;display:grid;place-items:center;background:var(--tinte);color:#fff;font-size:13px;font-weight:700}
+#rieb .vb-betrag .kreis{justify-self:center;width:22px;height:22px;border-radius:7px;box-shadow:inset 0 0 0 1.5px var(--t-rand)}
+#rieb .vb button.fix{grid-column:4/6;padding-left:10px;color:var(--tinte2);font-size:13px;text-align:left}
+#rieb .vb button.fix b{color:var(--tinte)}
+#rieb .vb-betrag .b{text-align:center;font-weight:700;color:var(--tinte3)}
+#rieb .vb-unter{display:flex;flex-direction:column;gap:6px;padding-left:16px;border-left:1px solid var(--t-rand)}
+#rieb .vb-u{display:grid;grid-template-columns:104px minmax(0,1fr);align-items:center;gap:8px;font-size:12.5px}
+#rieb .vb-u>span{font-weight:620;color:var(--tinte2)}
+#rieb .vb .vb-u>.vb-e,#rieb .vb button.vb-uw{height:28px;border-radius:9px;font-size:13px;text-align:left;padding:0 10px}
+#rieb .vb .vb-u>.vb-e{background:transparent;box-shadow:inset 0 0 0 1.5px var(--t-rand)}
+#rieb .vb button.vb-uw{background:var(--t0);font-weight:600;width:100%}
+#rieb .vb-sig{display:flex;align-items:center;gap:6px;min-height:40px;border-radius:9px;box-shadow:inset 0 0 0 1.5px var(--t-rand);padding:4px 5px 4px 8px}
+#rieb .vb-sig img{height:32px;max-width:120px;object-fit:contain;background:#fff;border-radius:6px;flex:none}
+#rieb .vb .vb-sig .vb-e{flex:1;height:28px;background:transparent;text-align:left;font-size:13px}
+#rieb .vb-knopf{height:28px;padding:0 10px;border-radius:999px;background:var(--t0);font-size:12px;font-weight:600;color:var(--tinte);flex:none;display:grid;place-items:center}
+#rieb .vb-knopf .ic{width:14px;height:14px}
+#rieb .vb-druck{display:flex;align-items:center;gap:8px;margin:14px 2px 0;font-size:12.5px;color:var(--tinte2)}
+#rieb .vb-druck .ic{width:16px;height:16px;color:var(--eis-tief);flex:none}
+#rieb .i-zurueck{margin-top:16px}
+@media (min-width:1100px){
+  #rieb .vb-innen{display:block}
+  #rieb .vb-innen .schnell{grid-template-columns:repeat(4,1fr);margin:0 0 18px}
+  #rieb .vb-wisch{margin:0;padding:0 0 6px}
+  #rieb .vb-wisch-text{display:none}
+  #rieb .i-zurueck{max-width:320px}
+}
+
+/* ======================================================================
+   DESIGN HELL / DUNKEL (08.10.2026)
+   Mirko: "für alle gilt das mit dem design wechsel hell oder dunkel, das
+   wählen sie aus bevor sie irgendwas anderes auswählen".
+     Hell    = wie bisher: dunkler Kopf, weisse Blaetter (Fassung A)
+     Dunkel  = alles dunkel wie die Startseite, Glas-Karten (Fassung B)
+   Der Kopf ist in beiden gleich - es wechseln Blatt, Karten und Boegen.
+   Schalter: #rieb.dunkel (rieb.js designAnwenden); fuer die Fenster der
+   alten Fassung (Zeit-Dreh-Rad) zusaetzlich html.rieb-dunkel.
+   Steht bewusst am Dateiende: bei gleicher Gewichtung gewinnt die
+   spaetere Regel. App und Browser gleich, Unterschiede nur nach Breite.
+   ====================================================================== */
+
+/* --- Die Wahl: Ersteinrichtung und "Mehr" (beide Designs) --- */
+#rieb .er-design{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+#rieb .er-dkarte{display:flex;flex-direction:column;gap:4px;padding:10px 10px 14px;border-radius:22px;background:rgba(255,255,255,.05);
+  box-shadow:inset 0 0 0 1px var(--n-rand);transition:box-shadow .25s,background .25s}
+#rieb .er-dkarte b{display:block;font-size:17px;font-weight:620;margin:10px 4px 0}
+#rieb .er-dkarte small{display:block;font-size:12.5px;line-height:1.35;color:var(--n-text2);margin:0 4px}
+#rieb .er-dkarte.an{background:rgba(56,189,248,.1);box-shadow:inset 0 0 0 1.5px var(--eis-satt),0 0 24px rgba(56,189,248,.18)}
+#rieb .mv{display:flex;flex-direction:column;width:100%;aspect-ratio:10/13;border-radius:15px;overflow:hidden;background:var(--n1);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+#rieb .mv-kopf{display:block;flex:0 0 40%;padding:10px 11px;background:radial-gradient(80% 70% at 92% 0%,rgba(56,189,248,.32),transparent 70%),linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.02))}
+#rieb .mv-kopf i{display:block;border-radius:3px}
+#rieb .mv-titel{width:38%;height:6px;background:rgba(255,255,255,.45)}
+#rieb .mv-zahl{width:58%;height:15px;margin-top:9px;background:#F2F4F7}
+#rieb .mv-balken{height:6px;margin-top:9px;background:linear-gradient(90deg,#B9ECFF,#38BDF8 46%,rgba(255,255,255,.12) 46%);box-shadow:0 0 10px rgba(56,189,248,.35)}
+#rieb .mv-blatt{flex:1;display:flex;flex-direction:column;gap:5px;margin-top:-7px;padding:9px;border-radius:11px 11px 0 0;background:#EEF0F4}
+#rieb .mv-knoepfe{display:flex;gap:5px;margin-bottom:2px}
+#rieb .mv-knoepfe i{display:block;width:17px;height:17px;border-radius:6px;background:#fff;box-shadow:0 0 0 1px #E1E5EB}
+#rieb .mv-knoepfe i:first-child{background:#0E1116;box-shadow:none}
+#rieb .mv-zeile{display:block;flex:1;max-height:20px;border-radius:6px;background:#fff;box-shadow:0 0 0 1px #E1E5EB}
+#rieb .mv.dunkel .mv-blatt{background:transparent}
+#rieb .mv.dunkel .mv-knoepfe i,#rieb .mv.dunkel .mv-zeile{background:rgba(255,255,255,.075);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+#rieb .mv.dunkel .mv-knoepfe i:first-child{background:linear-gradient(180deg,#B9ECFF,#38BDF8);box-shadow:0 0 10px rgba(56,189,248,.45)}
+#rieb .design-zeile{cursor:default}
+#rieb .design-zeile:active{background:none}
+#rieb .design-wahl{display:inline-grid;grid-template-columns:1fr 1fr;gap:2px;padding:3px;border-radius:12px;background:var(--t0);flex:none}
+#rieb .design-wahl button{height:34px;padding:0 14px;border-radius:9px;font-size:13.5px;font-weight:600;color:var(--tinte2);text-align:center}
+#rieb .design-wahl button.an{background:var(--tinte);color:#fff}
+
+/* --- Dunkel: Farben --- */
+#rieb.dunkel{
+  --t0:rgba(255,255,255,.065); --t1:rgba(255,255,255,.055); --t-rand:rgba(255,255,255,.08);
+  --tinte:#F2F4F7; --tinte2:#A0A8B4; --tinte3:#6F7785;
+  --urlaub:#86EFAC; --urlaub-bg:rgba(34,197,94,.16); --krank:#FCA5A5; --krank-bg:rgba(239,68,68,.16);
+  --frei:#CBD5E1; --frei-bg:rgba(148,163,184,.18); --sonder:#C4B5FD; --sonder-bg:rgba(139,92,246,.2);
+  --eltern:#FCD34D; --eltern-bg:rgba(234,179,8,.16); --feier:#7DD3FC; --feier-bg:rgba(56,189,248,.14);
+  --leucht:linear-gradient(180deg,#B9ECFF,#38BDF8);
+  --glas:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.03));
+  --glas-rand:inset 0 0 0 1px rgba(255,255,255,.08),inset 0 1px 0 rgba(255,255,255,.06);
+}
+/* --- Dunkel: Flaechen --- */
+#rieb.dunkel .bereich{background:
+    radial-gradient(70% 34% at 4% 78%, rgba(99,102,241,.13), transparent 70%),
+    radial-gradient(60% 30% at 98% 42%, rgba(56,189,248,.07), transparent 70%),
+    var(--n1)}
+#rieb.dunkel .b-grund{background:linear-gradient(180deg,rgba(255,255,255,.07),transparent)}
+#rieb.dunkel #s-spesen .b-grund{background:
+    radial-gradient(70% 60% at 90% 0%, rgba(56,189,248,.26), transparent 70%),
+    linear-gradient(180deg,rgba(255,255,255,.075),transparent)}
+#rieb.dunkel .blatt{background:transparent;box-shadow:none}
+#rieb.dunkel .karte,#rieb.dunkel .liste,#rieb.dunkel .mmonat{background:var(--glas);box-shadow:var(--glas-rand)}
+#rieb.dunkel .bogen{background:#10131A;box-shadow:0 -20px 50px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.08)}
+#rieb.dunkel .griff{background:rgba(255,255,255,.22)}
+#rieb.dunkel input,#rieb.dunkel select{color-scheme:dark}
+/* --- Dunkel: Knoepfe. Wo Hell "Tinte mit weisser Schrift" hat, waere es
+   hier hell auf hell - darum Leuchtblau oder Hell mit dunkler Schrift. --- */
+#rieb.dunkel .schnell .knopf{background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px var(--n-rand);color:var(--eis)}
+#rieb.dunkel .schnell .erst .knopf{background:var(--leucht);color:#06070A;box-shadow:0 0 24px rgba(56,189,248,.4)}
+#rieb.dunkel .haupt-knopf:not(.hell){background:var(--leucht);color:#06070A;box-shadow:0 10px 28px rgba(56,189,248,.28)}
+#rieb.dunkel .haupt-knopf.nein{background:var(--t1);color:var(--tinte);box-shadow:inset 0 0 0 1.5px var(--tinte3)}   /* "Nein" bleibt Flaeche + Umriss (steht nach der Regel davor) */
+#rieb.dunkel .art.an,#rieb.dunkel .bogen .art.an,#rieb.dunkel .os-wahl button.an,#rieb.dunkel .design-wahl button.an{background:#F2F4F7;color:#06070A}
+#rieb.dunkel .voraus{background:rgba(56,189,248,.12);color:var(--eis)}
+#rieb.dunkel .voraus button,#rieb.dunkel .gesperrt button{background:#F2F4F7;color:#06070A}
+#rieb.dunkel .voraus.gefuellt button{background:transparent;color:var(--eis);box-shadow:inset 0 0 0 1px rgba(125,211,252,.45)}
+#rieb.dunkel .schritte li::before{color:#06070A}
+#rieb.dunkel .rolle-wahl.an .r-ic{color:#06070A}
+#rieb.dunkel .schalter input{accent-color:var(--eis-satt)}
+/* --- Dunkel: Hinweise, Marken, Kalender, Balken --- */
+#rieb.dunkel .gesperrt{background:rgba(234,179,8,.14);color:#FDE68A}
+#rieb.dunkel .zu-heute,#rieb.dunkel .chip.heute{background:rgba(56,189,248,.14);color:var(--eis)}
+#rieb.dunkel .hinweis .ic,#rieb.dunkel .t-marke{color:var(--eis)}
+#rieb.dunkel .tag.heute .t-datum{background:#E6F6FF;color:#06070A}
+#rieb.dunkel .tag.heute .t-wt{color:#0369A1}
+#rieb.dunkel .w-balken{background:rgba(255,255,255,.1)}
+#rieb.dunkel .d.we{color:var(--n-text3)}
+#rieb.dunkel .balken .saeule{background:rgba(255,255,255,.16)}
+#rieb.dunkel .balken .saeule.jetzt{background:linear-gradient(180deg,#7DD3FC,#0284C7);box-shadow:0 0 18px rgba(56,189,248,.45)}
+#rieb.dunkel .balken .saeule.spaeter{background:transparent;border-color:rgba(255,255,255,.18)}
+#rieb.dunkel .skala.kurz .skala-fuell{background:rgba(255,255,255,.28)}
+/* Unterschrift-Foto: dunkle Tinte braucht hellen Grund */
+#rieb.dunkel .sig-vorschau{background:#fff;border-radius:8px;padding:4px}
+/* --- Dunkel: Zeit (Fassung B) --- */
+#rieb.dunkel{--z-plus:#86EFAC;--z-plus-bg:rgba(34,197,94,.16);--z-minus:#FCA5A5;--z-minus-bg:rgba(239,68,68,.16)}
+#rieb.dunkel :is(#s-zeit,#s-ware,#s-inventur) .b-grund{background:
+    radial-gradient(70% 60% at 90% 0%, rgba(56,189,248,.26), transparent 70%),
+    linear-gradient(180deg,rgba(255,255,255,.075),transparent)}
+#rieb.dunkel .karte.stechuhr{background:radial-gradient(80% 70% at 85% 0%, rgba(56,189,248,.2), transparent 70%),var(--glas);box-shadow:var(--glas-rand)}
+#rieb.dunkel .zkal .d.we{color:var(--n-text3)}
+#rieb.dunkel .w-reihe .eingabe::placeholder{color:var(--n-text3)}
+#rieb.dunkel .w-reihe.voll .nr{color:var(--eis)}
+/* --- Dunkel: Fahrzeug-Inventur (Fassung B) --- */
+#rieb.dunkel .i-reihe .eingabe::placeholder{color:var(--n-text3)}
+#rieb.dunkel .i-reihe.voll .nr{color:var(--eis)}
+#rieb.dunkel .vb{background:var(--glas);box-shadow:var(--glas-rand)}
+#rieb.dunkel .vb-betrag .haken{background:var(--leucht);color:#06070A}
+#rieb.dunkel .vb-druck .ic{color:var(--eis)}
+#rieb.dunkel .w-flaeche{background:radial-gradient(80% 70% at 85% 0%, rgba(56,189,248,.2), transparent 70%),var(--glas);box-shadow:var(--glas-rand)}
+@media (hover:hover){
+  #rieb.dunkel .tag:hover{box-shadow:0 0 0 1px rgba(255,255,255,.18),0 6px 18px rgba(0,0,0,.3)}
+}
+@media (min-width:1100px){
+  #rieb.dunkel .schnell button{background:var(--glas);box-shadow:var(--glas-rand)}
+  #rieb.dunkel .schnell .knopf{box-shadow:none}
+  #rieb.dunkel .schnell .erst{background:var(--leucht)!important;color:#06070A;box-shadow:0 0 26px rgba(56,189,248,.3)}
+  #rieb.dunkel .schnell .erst .knopf{background:rgba(6,7,10,.12);color:#06070A;box-shadow:none}
+}
+/* --- Dunkel: das Zeit-Dreh-Rad der alten Fassung (oeffnet aus den Boegen) --- */
+html.rieb-dunkel .time-wheel-modal{background:#10131A;color:#F2F4F7;box-shadow:0 24px 60px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.08)}
+html.rieb-dunkel .time-wheel-title,html.rieb-dunkel .time-wheel-colon{color:#F2F4F7}
+html.rieb-dunkel .time-wheel-item{color:#7D8796}
+html.rieb-dunkel .time-wheel-highlight{background:rgba(56,189,248,.12);border-color:#38BDF8}
+html.rieb-dunkel .time-wheel-buttons button{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.12);color:#F2F4F7;box-shadow:none}
+html.rieb-dunkel .time-wheel-buttons button.primary{background:linear-gradient(180deg,#B9ECFF,#38BDF8);border-color:transparent;color:#06070A}
+
+/* =====================================================================
+   EINSTELLUNGEN IM SPESEN-BEREICH (09.10.2026, Entwurf 2 freigegeben)
+   rieb.js einstellungenBlock(). Handy: an der Stelle der frueheren
+   Stammdaten-Karte (nach der Tagesliste); PC: rechte Spalte.
+   ===================================================================== */
+#rieb .e-block{order:2;display:flex;flex-direction:column}
+#rieb .e-block .karte{margin-top:12px}
+#rieb .e-abschnitt{margin:26px 2px 2px;display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+#rieb .e-abschnitt h3{margin:0;font-size:17px;font-weight:660;color:var(--tinte)}
+#rieb .e-abschnitt span{font-size:13px;font-weight:600;color:var(--tinte2);white-space:nowrap;font-variant-numeric:tabular-nums}
+#rieb .e-unterzeile{font-size:13px;color:var(--tinte3);margin:4px 2px 4px;line-height:1.4}
+#rieb .e-hinweis{font-size:12.5px;color:var(--tinte3);margin:10px 0 0;line-height:1.4}
+#rieb .e-kopf{display:flex;align-items:flex-start;gap:10px;justify-content:space-between}
+#rieb .e-kopf .e-titel{display:flex;flex-direction:column;align-items:flex-start;gap:7px;min-width:0}
+#rieb .e-kopf .knopf-klein{flex:none}
+#rieb .e-status{display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:620;white-space:nowrap}
+#rieb .e-status .ic{width:14px;height:14px}
+#rieb .e-status.ok{background:#DCFCE7;color:#15803D}
+#rieb .e-status.fehlt{background:#FEF3C7;color:#A16207}
+#rieb .karte.fehlt{box-shadow:0 0 0 2px #FCD34D,0 10px 26px rgba(161,98,7,.12)}
+#rieb .e-werte{display:grid;margin-top:6px}
+#rieb .e-werte>div{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:9px 0;border-top:1px solid var(--t-rand);font-size:14px}
+#rieb .e-werte>div:first-child{border-top:0}
+#rieb .e-werte>div>span:first-child{color:var(--tinte2);min-width:0}
+#rieb .e-werte b{font-weight:600;text-align:right;color:var(--tinte);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%}
+#rieb .e-werte b.leer{color:var(--tinte3);font-weight:450}
+#rieb .e-liste{margin-top:4px}
+#rieb .e-zeitraum{display:flex;align-items:center;gap:12px;padding:9px 0;border-top:1px solid var(--t-rand);font-size:14px}
+#rieb .e-zeitraum:first-child{border-top:0}
+#rieb .e-zeitraum .e-art{font-weight:620;min-width:56px}
+#rieb .e-zeitraum .wann{flex:1;min-width:0;color:var(--tinte2);font-variant-numeric:tabular-nums}
+#rieb .e-x{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--t0);color:var(--tinte2);flex:none}
+#rieb .e-x .ic{width:16px;height:16px}
+#rieb .e-art.urlaub{color:var(--urlaub)} #rieb .e-art.krank{color:var(--krank)} #rieb .e-art.frei{color:var(--frei)}
+#rieb .e-art.sonderurlaub{color:var(--sonder)} #rieb .e-art.elternzeit{color:var(--eltern)}
+#rieb.dunkel .e-status.ok{background:rgba(34,197,94,.16);color:#86EFAC}
+#rieb.dunkel .e-status.fehlt{background:rgba(234,179,8,.16);color:#FCD34D}
+#rieb.dunkel .karte.fehlt{box-shadow:inset 0 0 0 1.5px rgba(252,211,77,.7)}
+#rieb.dunkel .e-art.urlaub{color:#86EFAC} #rieb.dunkel .e-art.krank{color:#FCA5A5} #rieb.dunkel .e-art.frei{color:#CBD5E1}
+#rieb.dunkel .e-art.sonderurlaub{color:#C4B5FD} #rieb.dunkel .e-art.elternzeit{color:#FCD34D}
+/* Resturlaub noch nicht bestaetigt (Bereich Urlaub, 09.10.2026) - gelb wie "fehlt noch" */
+#rieb .hinweis.rest-offen{align-items:center;padding:12px 14px;border-radius:18px;background:var(--t1);box-shadow:0 0 0 2px #FCD34D;color:var(--tinte2);font-size:13px}
+#rieb .hinweis.rest-offen span{flex:1;min-width:0}
+#rieb .hinweis.rest-offen .knopf-klein{flex:none}
+#rieb.dunkel .hinweis.rest-offen{background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1.5px rgba(252,211,77,.7)}
+/* PC: die rechte Spalte des Spesen-Bereichs ist mit den Einstellungen
+   laenger als der Bildschirm - "sticky" haette ihr Ende unerreichbar
+   gemacht, bis die Tagesliste zu Ende gescrollt ist. */
+@media (min-width:1100px){
+  #rieb #s-spesen .seite{position:static}
+}
+
+/* ======================================================================
+   GERAETE ABGLEICHEN (09.10.2026, Entscheidung 42) - unter "Mehr" ganz oben,
+   Bogen Anmelden / Neues Konto / Konto loeschen. Entwurf:
+   Neues Design/abgleich-entwurf.html (Mirko: "ja passt"). Steht am Ende:
+   der rote Knopf muss die Dunkel-Regel fuer .haupt-knopf schlagen.
+   ====================================================================== */
+#rieb .zeile.abgleich-stand{cursor:default}
+#rieb .zeile.abgleich-stand:active{background:none}
+#rieb .abgleich-punkt{display:inline-block;width:7px;height:7px;border-radius:50%;background:#16A34A;margin:0 5px 1px 0;vertical-align:middle}
+#rieb .abgleich-meldung{margin:12px 2px 0;font-size:13.5px;line-height:1.45;font-weight:560;color:var(--krank)}
+#rieb .abgleich-meldung.gut{color:var(--urlaub)}
+#rieb .haupt-knopf:disabled{opacity:.6;cursor:default}
+#rieb .haupt-knopf.gefahr,#rieb.dunkel .haupt-knopf.gefahr{background:#DC2626;color:#fff;box-shadow:0 10px 28px rgba(220,38,38,.25)}
+
+/* ======================================================================
+   SPESEN UEBERSICHTLICHER (09.10.2026 abends, Entscheidung 43)
+   Mirko: "die einzelne tage in eine art tabelle für mehr übersicht packen?
+   oder rechts die ganzen einstell dinge als geschlossene tabelle bzw
+   abgegrenzte 'eigene' funktion" - zum Entwurf (Neues Design/
+   spesen-tabelle-entwurf.html): "das jeweils rechte bild sieht immer besser aus".
+     A  PC (ab 1100 px): die Tage als Tabelle - je Woche ein Block, eine
+        schlanke Zeile je Tag (vorher jede Zeile eine eigene Karte, unter dem
+        Kopf nur 4-5 Tage sichtbar)
+     B  schmaler (Handy): Karten etwas enger - eine Tabelle mit 7 Spalten
+        passt auf 393 px nicht
+     C  beide: Einstellungen als geschlossener Block wie unter "Mehr"
+   Nur nach Breite, nie nach Installationsstatus (App = Browser).
+   ====================================================================== */
+/* C - Einstellungen als Block */
+#rieb .e-block .gruppe{margin-top:18px}
+#rieb .e-gtitel{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 10px;align-items:baseline}
+#rieb .e-gtitel .e-zahl{letter-spacing:.02em;text-transform:none;font-weight:600;color:#16A34A}
+#rieb .e-gtitel .e-zahl.offen{color:#B45309}
+#rieb.dunkel .e-gtitel .e-zahl{color:#86EFAC}
+#rieb.dunkel .e-gtitel .e-zahl.offen{color:#FDE68A}
+#rieb .e-block .z-text{min-width:0}
+#rieb .e-ok{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--urlaub-bg);color:var(--urlaub);flex:none}
+#rieb .zeile .rechts .e-ok .ic{width:13px;height:13px;stroke-width:2.4}
+#rieb .e-fehlt{display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:999px;font-size:11.5px;font-weight:640;white-space:nowrap;background:#FEF3C7;color:#92400E}
+#rieb.dunkel .e-fehlt{background:rgba(234,179,8,.16);color:#FDE68A}
+#rieb .zeile.fehlt{box-shadow:inset 3px 0 0 #FCD34D}
+#rieb .zeile.e-abw{cursor:default;padding-bottom:4px}
+#rieb .zeile.e-abw:active{background:none}
+#rieb .e-abw-liste{padding:0 16px 8px 66px}
+#rieb .e-abw-liste + .zeile{border-top:1px solid var(--t-rand)}
+/* B - schmaler: Karten etwas enger */
+@media (max-width:1099px){
+  #rieb #s-spesen .tag:not(.kommt){padding:8px 14px 8px 9px;margin-bottom:6px;border-radius:16px}
+  #rieb #s-spesen .tag:not(.kommt) .t-datum{height:42px}
+}
+/* A - PC: Tabelle, je Woche ein Block */
+@media (min-width:1100px){
+  #rieb #s-spesen .woche{margin-top:14px;background:var(--t1);border-radius:16px;box-shadow:0 0 0 1px var(--t-rand);overflow:hidden}
+  #rieb #s-spesen .woche-kopf{padding:9px 18px 8px 16px;background:var(--t0);border-bottom:1px solid var(--t-rand)}
+  #rieb #s-spesen .tag{border-radius:0;margin:0;box-shadow:none;background:transparent;padding:2px 18px 2px 8px;border-bottom:1px solid var(--t-rand)}
+  #rieb #s-spesen .tag:last-child{border-bottom:0}
+  #rieb #s-spesen .tag:active{transform:none;background:var(--t0)}
+  #rieb #s-spesen .tag .t-datum{height:34px;background:transparent}
+  #rieb #s-spesen .tag .t-nr{font-size:15px}
+  #rieb #s-spesen .tag .t-ab,#rieb #s-spesen .tag .t-an,#rieb #s-spesen .tag .t-betrag{font-size:15px}
+  #rieb #s-spesen .tag:hover{background:var(--t0);box-shadow:none}
+  #rieb #s-spesen .tag.heute{box-shadow:inset 3px 0 0 var(--eis-satt);background:rgba(56,189,248,.07)}
+  #rieb #s-spesen .tag.heute .t-datum{background:transparent;color:inherit}
+  #rieb #s-spesen .tag.heute .t-wt{color:var(--tinte3)}
+  #rieb #s-spesen .tag.zulang{box-shadow:inset 3px 0 0 #F87171}
+  #rieb #s-spesen .tag.kommt{padding:2px 18px 2px 8px}
+  #rieb #s-spesen .ruhe{padding:7px 20px;border-bottom:1px solid var(--t-rand);margin:0}
+  #rieb #s-spesen .ruhe:last-child{border-bottom:0}
+  #rieb #s-spesen .voraus{margin:8px 12px}
+}

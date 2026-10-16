@@ -1,0 +1,181 @@
+/* =====================================================================
+   stoerungen/stoerungen.css - Störungsliste (11.10.2026, nur Mirko)
+   Baut auf rieb.css auf. App und Browser: Unterschiede NUR nach Breite
+   (@media), nie nach .als-app oder display-mode.
+   ===================================================================== */
+#rieb #s-stoerungen .blatt-innen{display:flex;flex-direction:column;gap:14px;max-width:760px}
+#rieb #s-stoerungen .karte{display:flex;flex-direction:column;gap:10px}
+
+/* Startseite: vier Kacheln in Mirkos Reihe -> 2 x 2 am Handy, 4 nebeneinander ab 700 px.
+   Mirko entscheidet in Task 10 anhand der Bilder. */
+#rieb .mini-reihe.sonder.vier{grid-template-columns:repeat(2,1fr)}
+@media (min-width:700px){#rieb .mini-reihe.sonder.vier{grid-template-columns:repeat(4,1fr)}}
+
+/* A-Nummer */
+#rieb .st-anr-feld{display:flex;align-items:center;gap:6px;background:var(--t0);border-radius:16px;padding:4px 14px}
+#rieb .st-a{font-size:30px;font-weight:700;color:var(--tinte3);font-variant-numeric:tabular-nums}
+#rieb .st-anr-feld input{flex:1;min-width:0;border:0;background:none;outline:none;color:var(--tinte);font:inherit;font-size:30px;font-weight:700;letter-spacing:.12em;font-variant-numeric:tabular-nums;padding:8px 0}
+
+/* Gerät */
+#rieb #stGeraet{display:flex;flex-direction:column;gap:14px}
+#rieb .st-geraet-zeile{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
+#rieb .st-geraet-zeile b{font-size:19px;font-weight:700;color:var(--tinte);font-variant-numeric:tabular-nums}
+#rieb .st-geraet-zeile span{font-size:13.5px;color:var(--tinte2)}
+#rieb .st-warn{display:flex;gap:8px;align-items:flex-start;font-size:13.5px;font-weight:620;color:var(--krank)}
+#rieb .st-warn .ic{flex:none;width:16px;height:16px;margin-top:1px}
+#rieb .st-offen{display:flex;flex-direction:column;gap:8px;font-size:13.5px;color:var(--tinte2);background:var(--t0);border-radius:14px;padding:10px 12px}
+/* Ja / Nein im hellen Design sichtbar: eigene Fläche mit feinem Rand statt Fläche auf gleicher Fläche */
+#rieb .st-offen .knopf-klein{background:var(--t1);box-shadow:0 0 0 1px var(--t-rand)}
+/* Gedächtnis (13.10.2026): frühere Störungen grau und mit eigener Überschrift – klar getrennt vom laufenden Zeitraum (Mirko: „klar getrennt zwischen
+   behobenen und neuen störungen“). Gleiche Fläche wie die Frage „Offene Störung … inzwischen behoben?“, aber gedämpft. */
+#rieb .st-frueher{display:flex;flex-direction:column;gap:5px;font-size:13px;line-height:1.45;color:var(--tinte3);background:var(--t0);border-radius:14px;padding:10px 12px;box-shadow:inset 0 0 0 1px var(--t-rand)}
+#rieb .st-frueher-titel{font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--tinte3)}
+#rieb .st-frueher-zeile{color:var(--tinte2)}
+#rieb .st-frueher-eintrag{opacity:.78}
+#rieb .st-frueher-knopf{margin-top:14px}
+
+/* Knöpfe und Auswahl */
+#rieb .st-knoepfe{display:flex;flex-direction:column;gap:10px}
+#rieb .st-knoepfe .knopf-klein,#rieb .st-breit{align-self:center}
+#rieb #s-stoerungen .haupt-knopf[disabled]{opacity:.35;pointer-events:none}
+/* Nur die beiden Datei-Labels dieses Bereichs - keine app-weite Regel auf label.knopf-klein / label.haupt-knopf */
+#rieb label.st-einspielen,#rieb label.st-kamera{display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer}
+#rieb label.st-einspielen .ic{width:16px;height:16px}
+#rieb .st-chips{display:flex;flex-wrap:wrap;gap:8px}
+#rieb .st-chip,#rieb .st-wahl,#rieb .st-schalter,#rieb .st-punkt,#rieb .st-nr{min-height:42px;padding:0 14px;border-radius:12px;background:var(--t0);color:var(--tinte);font-size:14.5px;font-weight:620;box-shadow:0 0 0 1px var(--t-rand)}
+/* Gewählt: wie die übrige App (.art.an in rieb.css) - hell: dunkle Fläche, weiße
+   Schrift; dunkel: blauer Akzent (siehe unten). Bis 12.10.2026 stand hier
+   color:var(--t1) - im dunklen Design fast durchsichtiges Weiß auf hellem Grund,
+   die gewählten Knöpfe waren nicht mehr lesbar (Mirko am iPhone). */
+#rieb .st-chip.an,#rieb .st-wahl.an,#rieb .st-schalter.an,#rieb .st-punkt.an,#rieb .st-nr.an{background:var(--tinte);color:#fff;box-shadow:none}
+/* Dunkles Design: KEINE helle/weiße Fläche für Gewähltes – Mirko am iPhone 12.10.2026: „das darf nicht so weiß hinterlegen wenn man was auswählt“.
+   Stattdessen der blaue Akzent der App (--eis / --eis-satt in rieb.css): getönte Fläche, heller Rand, helle Schrift. */
+#rieb.dunkel .st-chip.an,#rieb.dunkel .st-wahl.an,#rieb.dunkel .st-schalter.an,#rieb.dunkel .st-punkt.an,#rieb.dunkel .st-nr.an{background:rgba(56,189,248,.18);color:#E6F6FF;box-shadow:inset 0 0 0 1.5px rgba(125,211,252,.8)}
+#rieb.dunkel .st-schalter.an .st-haken,#rieb.dunkel .st-punkt.an .st-haken{background:var(--eis);box-shadow:none}
+#rieb .st-chip-neu{color:var(--tinte3)}
+#rieb .st-zwei{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#rieb .st-drei{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+#rieb .st-schalter{display:flex;align-items:center;gap:10px;width:100%;text-align:left}
+#rieb .st-haken{width:18px;height:18px;border-radius:6px;box-shadow:inset 0 0 0 2px currentColor;flex:none}
+#rieb .st-schalter.an .st-haken,#rieb .st-punkt.an .st-haken{background:currentColor;box-shadow:none}
+
+/* Feste Auswahl bei Gerätestörung und Mona-App-Störung (12.10.2026): lange Sätze laufen im Knopf um (Höhe wächst mit), darunter steht, was der gewählte Punkt braucht.
+   Das Zahlenraster 1-30: sechs je Zeile am Handy, ab 700 px zehn (Unterschied nur nach BREITE, nie nach .als-app). */
+#rieb .st-auswahl{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+#rieb .st-punkt{display:flex;align-items:center;gap:10px;width:100%;height:auto;padding:10px 14px;text-align:left;line-height:1.3}
+#rieb .st-punkt > span:last-child{min-width:0;overflow-wrap:anywhere}
+#rieb .st-nummern{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:16px;box-shadow:0 0 0 1px var(--t-rand)}
+#rieb .st-raster{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+#rieb .st-nr{padding:0;text-align:center;font-variant-numeric:tabular-nums}
+@media (min-width:700px){#rieb .st-raster{grid-template-columns:repeat(10,minmax(0,1fr))}}
+
+/* Störung */
+#rieb #s-stoerungen textarea{width:100%;border:0;border-radius:14px;background:var(--t0);color:var(--tinte);font:inherit;font-size:15px;line-height:1.45;padding:10px 12px;resize:vertical;outline:none}
+#rieb .st-klemmer-liste{display:flex;flex-direction:column;gap:10px}
+#rieb .st-klemmer{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:16px;box-shadow:0 0 0 1px var(--t-rand)}
+#rieb .st-klemmer-kopf{display:flex;justify-content:space-between;align-items:center}
+#rieb .st-reihe3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+#rieb .st-reihe2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:8px;align-items:center}
+/* Gefundene Päckchen (12.10.2026): je Zeile Sorte | Anzahl | Schacht | × - beschriftete Felder (label.feld) wie im Klemmer-Teil, damit ein ausgefüllter
+   Wert wie „7“ sagt, was er ist. Jede Zeile im selben dünnen Rahmen wie ein Klemmer (.st-klemmer), so laufen zwei Blöcke nicht ineinander. */
+#rieb .st-gp-zeile{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:16px;box-shadow:0 0 0 1px var(--t-rand)}
+/* Schmal (Handy): oben Sorte + Anzahl + ×, darunter der Schacht über die ganze Breite - drei Felder nebeneinander ließen dem Feld
+   "Schacht (wenn klar)" nur rund 60 px (bei 393 px gemessen; die Beschriftung braucht mehr). Ab 700 px (wie die Kacheln oben) alles in einer Zeile. Nur nach BREITE, nie nach .als-app. */
+#rieb .st-reihe-gp{display:grid;grid-template-columns:minmax(0,1fr) 92px auto;gap:8px;align-items:center}
+#rieb .st-reihe-gp .st-gp-schacht{grid-column:1 / 3}
+#rieb .st-reihe-gp .st-weg{grid-column:3;grid-row:1}
+@media (min-width:700px){
+  #rieb .st-reihe-gp{grid-template-columns:minmax(0,1.2fr) 96px minmax(170px,1fr) auto}
+  #rieb .st-reihe-gp .st-gp-schacht{grid-column:auto}
+  #rieb .st-reihe-gp .st-weg{grid-column:auto;grid-row:auto}
+}
+#rieb .st-reihe2 input{height:42px;border:0;border-radius:12px;background:var(--t0);color:var(--tinte);font:inherit;font-size:15px;padding:0 12px;min-width:0;outline:none}
+#rieb .st-reihe2 .feld{grid-column:span 1}
+#rieb .st-sorte{font-size:12.5px;color:var(--tinte3);min-height:1em}
+/* × mittig im Kreis – rieb.css setzt Knopftext app-weit linksbündig (Mirko 13.10.2026: „das x ist nicht mittig im auswahl kreis“) */
+#rieb .st-weg{width:38px;height:38px;border-radius:50%;background:var(--t0);color:var(--tinte2);font-size:18px;display:inline-flex;align-items:center;justify-content:center;line-height:1;text-align:center}
+#rieb .st-vorschau{display:flex;flex-wrap:wrap;gap:8px}
+#rieb .st-vorschau:empty{display:none}
+#rieb .st-bild{width:72px;height:72px;border-radius:12px;overflow:hidden;padding:0;background:var(--t0)}
+#rieb .st-bild img{width:100%;height:100%;object-fit:cover;display:block}
+#rieb .st-kamera{display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer}
+#rieb .st-kamera .ic{width:20px;height:20px}
+/* Videos (13.10.2026): „Video aufnehmen“ steht unter „Störung festhalten“, „Mona-Video aufnehmen“ unter „Mona-Problem festhalten“ - am Handy untereinander (die Beschriftungen
+   sind lang), ab 700 px nebeneinander. Unterschied NUR nach Breite, nie nach .als-app. Die Vorschau eines Videos ist ein Foto-Feld (72 x 72) mit Abspiel-Zeichen und den Sekunden. */
+#rieb .st-aufnahmen{display:flex;flex-direction:column;gap:8px}
+@media (min-width:700px){#rieb .st-aufnahmen{flex-direction:row}#rieb .st-aufnahmen .st-kamera{flex:1 1 0;min-width:0;width:auto}}
+#rieb .st-videobild{position:relative}
+#rieb .st-videobild .st-play-kreis{position:absolute;left:50%;top:50%;width:28px;height:28px;margin:-14px 0 0 -14px;border-radius:50%;background:rgba(0,0,0,.62);display:flex;align-items:center;justify-content:center;pointer-events:none}
+#rieb .st-videobild .st-play{width:14px;height:14px;fill:#fff;margin-left:2px}
+#rieb .st-videobild .st-dauer{position:absolute;right:3px;bottom:3px;font-size:11px;font-weight:650;line-height:1;color:#fff;background:rgba(0,0,0,.68);border-radius:6px;padding:2px 5px;font-variant-numeric:tabular-nums;pointer-events:none}
+/* Video im Bogen: füllt die Breite wie ein Foto, höchstens 60 % der Fensterhöhe (Hochkant-Videos werden nicht riesig) */
+#rieb .st-video-gross{background:#000;max-height:60vh}
+#rieb .st-bogen .st-teiltext{white-space:pre-line;overflow-wrap:anywhere;font-size:13px;line-height:1.5}
+/* Mona-Problem festhalten (12.10.2026): Kamera-Knopf und Mona-Fotos stehen im Teil „Mona-App-Störung“ unter den Punkten; in der Vorgeschichte stehen die
+   Mona-Fotos unter dem Automaten-Foto-Kasten mit der kleinen Beschriftung „Mona“ (nur wenn es welche gibt). */
+#rieb .st-mona-fotos{display:flex;flex-direction:column;gap:10px}
+#rieb .st-foto-gruppe{display:flex;flex-direction:column;gap:4px}
+#rieb .st-foto-gruppe:empty{display:none}
+#rieb .st-unsichtbar{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none}
+#rieb .st-fehler{color:var(--krank);font-size:13.5px;font-weight:620;text-align:center}
+#rieb .st-fehler:empty{display:none}
+
+/* Listen */
+#rieb .st-tipp{font-size:13.5px;color:var(--tinte3);text-align:center;padding:6px}
+#rieb .st-heute-zeile{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;font-size:14px;color:var(--tinte2)}
+#rieb .st-heute-zeile b{color:var(--tinte);font-variant-numeric:tabular-nums}
+#rieb .st-marke{font-size:12px;font-weight:650;padding:3px 9px;border-radius:999px;background:var(--t0);color:var(--tinte2)}
+#rieb .st-marke.stoerung{color:var(--krank)}
+#rieb .st-leiste{display:flex;justify-content:space-between;align-items:flex-end;gap:8px}
+#rieb .st-tourfilter{flex:1;max-width:220px}
+/* „‹ Kartei“: Symbol NEBEN dem Wort (bis 12.10.2026 stand es darüber und stieß oben an - Mirko am iPhone) */
+#rieb .st-leiste .knopf-klein{display:inline-flex;align-items:center;gap:4px}
+#rieb .st-leiste .ic{width:14px;height:14px;flex:none}
+#rieb .st-liste{display:flex;flex-direction:column;gap:10px}
+#rieb .st-zeile{text-align:left;width:100%;gap:6px}
+#rieb .st-zeile-kopf{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}
+#rieb .st-zeile-kopf b{font-size:17px;color:var(--tinte);font-variant-numeric:tabular-nums}
+#rieb .st-zeile-kopf span{font-size:13px;color:var(--tinte2)}
+#rieb .st-zahlen{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:13px;color:var(--tinte2)}
+#rieb .st-rot{color:var(--krank);font-weight:650}
+#rieb .st-klein{font-size:12.5px;color:var(--tinte3);line-height:1.45}
+#rieb .st-abstand{margin-top:8px}
+#rieb .st-text{font-size:13.5px;line-height:1.55;color:var(--tinte2)}
+#rieb .st-text b{color:var(--tinte);font-weight:620}
+/* Vorgeschichte: jeder Punkt eine Zeile mit Uhrzeit und × (Mirko 12.10.2026: einzelne Störungen einzeln löschen) */
+#rieb .st-punkte{display:flex;flex-direction:column}
+#rieb .st-punkt-zeile{display:flex;justify-content:space-between;align-items:center;gap:8px}
+#rieb .st-punkt-text{min-width:0;overflow-wrap:anywhere}
+#rieb .st-uhr{font-variant-numeric:tabular-nums;font-weight:620;color:var(--tinte)}
+#rieb .st-punkt-zeile .st-weg{flex:none}
+#rieb .st-eintrag-kopf{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px;color:var(--tinte)}
+#rieb .st-eintrag-knoepfe{display:flex;flex-wrap:wrap;gap:8px}
+#rieb .st-werk-zeile{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:13.5px;color:var(--tinte2)}
+#rieb .st-mahnung{color:var(--krank);font-weight:650}
+
+/* Bögen */
+#rieb .st-bogen{display:flex;flex-direction:column;gap:12px;padding-top:8px}
+#rieb .st-bogen p{font-size:14px;line-height:1.5;color:var(--tinte2)}
+#rieb .st-bogen .st-hinweis-text{font-size:16.5px;font-weight:640;color:var(--tinte)}
+#rieb .st-gross{width:100%;border-radius:14px;display:block}
+#rieb .st-listen-zeile{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px;color:var(--tinte2);min-height:38px}
+#rieb .st-bogen select{width:100%}
+/* Löschen-Knöpfe rot – in BEIDEN Designs (13.10.2026: im dunklen Design überschrieb die Dunkel-Regel für .haupt-knopf das Rot, die Knöpfe waren blau).
+   Dasselbe Rot wie der Gefahr-Knopf der App (rieb.css .haupt-knopf.gefahr, „Konto löschen“); :not(.hell) schlägt die Dunkel-Regel unabhängig von der Reihenfolge. */
+#rieb .st-gefahr{background:var(--krank)}
+#rieb .haupt-knopf.st-gefahr,#rieb.dunkel .haupt-knopf.st-gefahr:not(.hell){background:#DC2626;color:#fff;box-shadow:0 10px 28px rgba(220,38,38,.25)}
+#rieb .st-bogen .st-zwei .haupt-knopf,#rieb .st-bogen .st-zwei .knopf-klein{height:46px}
+/* Spracheingabe (14.10.2026): Sprechfeld oben auf der Seite „Störung“ – freiwillig, gleiche Bausteine wie der Rest (Textfeld, Chips, Hinweise).
+   Nur nach Breite gestaltet, nie nach App/Browser (CLAUDE.md). */
+#rieb .st-sprechen #stSprache{min-height:64px}
+#rieb #stSpracheVorschau{display:flex;flex-direction:column;gap:10px}
+#rieb #stSpracheVorschau:empty{display:none}
+#rieb .st-sprache-zeilen{display:flex;flex-direction:column;gap:6px}
+#rieb .st-sprache-zeile{display:grid;grid-template-columns:118px 1fr;gap:10px;font-size:14px;line-height:1.4}
+#rieb .st-sprache-zeile span{color:var(--tinte3)}
+#rieb .st-sprache-zeile b{color:var(--tinte);font-weight:620}
+#rieb .st-sprache-sorte{display:flex;flex-direction:column;gap:8px}
+#rieb .st-sprache-ok{color:var(--tinte2);font-weight:620}
+/* Sorten-Vorschläge beim Tippen (15.10.2026): „lucky“ → alle Lucky-Strike-Sorten zum Antippen */
+#rieb .st-sorten-wahl{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+#rieb .st-sorten-wahl:empty{display:none}

@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Anleitung – Rieb Spesen</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="favicon.ico">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<!--
+  Anleitung fuer die Kollegen - Neufassung fuer "Rieb Spesen" (Teil E, 09.10.2026).
+  Gliederung von Mirko am 09.10.2026 freigegeben (14 Kapitel, nur Kollegen-Funktionen).
+  Am 09.10.2026 abends ergaenzt: Kapitel 13 "Geraete abgleichen" (Entscheidung 42,
+  Abgleich fuer alle) - jetzt 15 Kapitel; Einstellungen als Block (Entscheidung 43).
+
+  Bleibt eine EIGENE Datei: Sie steckt als iframe im Bereich "Anleitung"
+  (rieb.js renderAnleitung) und laesst sich auch direkt aufrufen.
+
+  Mirko 09.10.2026:
+   - Design: folgt Hell / Dunkel wie die App (localStorage "rieb_design").
+   - Bilder: am PC PC-Bilder, am Handy Handy-Bilder - umgeschaltet NUR nach
+     Breite (ab 1100 px = PC, dieselbe Grenze wie rieb.css). Im iframe zaehlt
+     die Breite des App-Fensters, nicht die des Rahmens. App und Browser gleich.
+  Eingebettet waechst der Rahmen auf die volle Laenge (kein zweiter Rollbalken).
+
+  Bilder: anleitung-bilder/<handy|pc>-<hell|dunkel>-<name>.jpg
+  Aufgenommen mit "Neues Design/anleitung-bilder.sh" (Beispiel-Kollege).
+-->
+<script>
+(function () {
+  var d = document.documentElement, ein = false;
+  try { if (localStorage.getItem("rieb_design") === "dunkel") d.classList.add("dunkel"); } catch (e) {}
+  try { ein = window.self !== window.top; } catch (e) { ein = true; }
+  if (ein) d.classList.add("eingebettet");
+})();
+</script>
+<style>
+@font-face{font-family:"Geist";src:url("schrift/Geist-Variable.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap}
+:root{
+  --grund:#EEF0F4; --karte:#FFFFFF; --rand:#E1E5EB;
+  --tinte:#0E1116; --tinte2:#4F5968; --tinte3:#7D8796;
+  --akzent:#0369A1; --akzent-bg:#E0F2FE; --nr-bg:#0E1116; --nr-text:#FFFFFF;
+  --tipp-bg:#F5F7FA; --warn:#B45309; --warn-bg:#FEF3C7;
+  --kopf:#0A0C10;
+}
+html.dunkel{
+  --grund:#0A0C10; --karte:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.03)); --rand:rgba(255,255,255,.08);
+  --tinte:#F2F4F7; --tinte2:#A0A8B4; --tinte3:#6F7785;
+  --akzent:#7DD3FC; --akzent-bg:rgba(56,189,248,.14); --nr-bg:linear-gradient(180deg,#B9ECFF,#38BDF8); --nr-text:#06070A;
+  --tipp-bg:rgba(255,255,255,.05); --warn:#FDE68A; --warn-bg:rgba(234,179,8,.14);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--grund);color:var(--tinte);font-family:"Geist",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:15.5px;line-height:1.55;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+html.eingebettet,html.eingebettet body{background:transparent}
+html.hoehe-ok,html.hoehe-ok body{overflow:hidden}
+
+/* Kopf nur, wenn die Seite allein geoeffnet ist (nicht im Rahmen der App) */
+.kopf{background:radial-gradient(70% 120% at 95% 0%,rgba(56,189,248,.22),transparent 70%),var(--kopf);color:#F2F4F7;
+  padding:calc(env(safe-area-inset-top,0px) + 18px) 20px 46px}
+.kopf-innen{max-width:780px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.marke{font-weight:640;font-size:16px;letter-spacing:-.01em}
+.marke b{color:#7DD3FC;font-weight:640}
+.zur-app{color:#F2F4F7;text-decoration:none;font-size:14px;font-weight:560;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
+.kopf h1{max-width:780px;margin:22px auto 0;font-size:30px;line-height:1.15;font-weight:640;letter-spacing:-.03em}
+.kopf p{max-width:780px;margin:8px auto 0;color:#A0A8B4}
+html.eingebettet .kopf{display:none}
+
+#anl{max-width:780px;margin:-26px auto 0;padding:0 14px calc(env(safe-area-inset-bottom,0px) + 40px);display:flex;flex-direction:column;gap:14px}
+html.eingebettet #anl{margin:0;padding:0 0 4px;max-width:none}
+
+.karte{background:var(--karte);border-radius:22px;padding:20px 20px 18px;box-shadow:0 0 0 1px var(--rand),0 1px 2px rgba(14,17,22,.03)}
+html.dunkel .karte{box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),inset 0 1px 0 rgba(255,255,255,.06)}
+
+.ueber{margin:0 0 4px;font-size:12px;font-weight:620;letter-spacing:.08em;text-transform:uppercase;color:var(--tinte3)}
+#inhalt h2{margin:0 0 10px;font-size:20px;font-weight:640;letter-spacing:-.02em}
+.toc{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr;gap:2px}
+@media (min-width:620px){.toc{grid-template-columns:1fr 1fr;column-gap:14px}}
+.toc a{display:flex;gap:10px;align-items:baseline;padding:8px 10px;border-radius:12px;color:var(--tinte);text-decoration:none;font-weight:540}
+.toc a:hover{background:var(--tipp-bg)}
+.toc a span{flex:none;width:22px;color:var(--akzent);font-weight:660;font-variant-numeric:tabular-nums}
+
+.kap h2{display:flex;align-items:center;gap:12px;margin:0 0 12px;font-size:21px;line-height:1.2;font-weight:640;letter-spacing:-.02em}
+.nr{flex:none;display:inline-grid;place-items:center;width:32px;height:32px;border-radius:11px;background:var(--nr-bg);color:var(--nr-text);font-size:15px;font-weight:680;font-variant-numeric:tabular-nums}
+.kap h3{margin:18px 0 6px;font-size:16px;font-weight:640;letter-spacing:-.01em}
+.kap p{margin:0 0 10px}
+.kap ul,.kap ol{margin:0 0 10px;padding-left:22px}
+.kap li{margin:4px 0}
+.kap li::marker{color:var(--tinte3)}
+.kap ol.schritte{list-style:none;padding:0;counter-reset:s}
+.kap ol.schritte>li{counter-increment:s;position:relative;padding-left:34px;margin:8px 0}
+.kap ol.schritte>li::before{content:counter(s);position:absolute;left:0;top:1px;width:23px;height:23px;border-radius:8px;display:grid;place-items:center;
+  font-size:12.5px;font-weight:680;background:var(--akzent-bg);color:var(--akzent)}
+.kap b{font-weight:640}
+.knopf{white-space:nowrap;font-weight:620}
+.leise{color:var(--tinte2)}
+.tipp{display:flex;gap:10px;margin:12px 0 4px;padding:12px 14px;border-radius:16px;background:var(--tipp-bg);color:var(--tinte2);font-size:14.5px}
+.tipp b{color:var(--tinte)}
+.tipp::before{content:"i";flex:none;width:19px;height:19px;margin-top:1px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;font-style:normal;
+  background:var(--akzent-bg);color:var(--akzent)}
+.tipp.wichtig{background:var(--warn-bg)}
+.tipp.wichtig::before{content:"!";background:transparent;color:var(--warn);box-shadow:inset 0 0 0 1.5px var(--warn)}
+.regeln{display:grid;gap:8px;margin:0 0 10px}
+.regel{display:flex;gap:12px;align-items:baseline;padding:10px 12px;border-radius:14px;background:var(--tipp-bg)}
+.regel b{flex:none;min-width:86px;font-variant-numeric:tabular-nums}
+.frage{margin:14px 0 4px;font-weight:640}
+
+/* Bilder - Handy schmal und mittig, PC ueber die volle Breite */
+.bild{margin:14px 0 6px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.bild img{display:block;width:100%;height:auto;border-radius:18px;box-shadow:0 0 0 1px var(--rand),0 10px 30px rgba(14,17,22,.12)}
+html.dunkel .bild img{box-shadow:0 0 0 1px rgba(255,255,255,.12),0 12px 34px rgba(0,0,0,.45)}
+html.handy .bild img{max-width:300px}
+html.pc .bild img{max-width:100%}
+html.pc .bild.schmal img{max-width:520px}
+.bild figcaption{font-size:13px;color:var(--tinte3);text-align:center}
+.bild.fehlt{display:none}
+.bilder-paar{display:grid;gap:10px}
+html.pc .bilder-paar{grid-template-columns:1fr 1fr;align-items:start}
+
+.nach-oben{display:inline-block;margin-top:8px;font-size:13.5px;color:var(--akzent);text-decoration:none;font-weight:560}
+.schluss{text-align:center;font-size:13.5px;color:var(--tinte3);padding:6px 10px 0}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<header class="kopf">
+  <div class="kopf-innen"><span class="marke">Rieb <b>Spesen</b></span><a class="zur-app" href="./">Zu Rieb Spesen</a></div>
+  <h1>So funktioniert Rieb Spesen</h1>
+  <p>Einmal einrichten – dann läuft Ihr Monat von selbst mit.</p>
+</header>
+
+<main id="anl">
+
+<nav class="karte" id="inhalt" aria-label="Inhalt">
+  <p class="ueber">Anleitung</p>
+  <h2>Inhalt</h2>
+  <ol class="toc">
+    <li><a href="#blick"><span>1</span>Auf einen Blick</a></li>
+    <li><a href="#start"><span>2</span>Der erste Start</a></li>
+    <li><a href="#startseite"><span>3</span>Die Startseite</a></li>
+    <li><a href="#zeiten"><span>4</span>Zeiten für alle Tage</a></li>
+    <li><a href="#tag"><span>5</span>Einen Tag ändern</a></li>
+    <li><a href="#regeln"><span>6</span>Die Rechenregeln</a></li>
+    <li><a href="#abwesenheit"><span>7</span>Abwesenheiten am Stück</a></li>
+    <li><a href="#einstellungen"><span>8</span>Einstellungen für Ihren Spesennachweis</a></li>
+    <li><a href="#monatsende"><span>9</span>Monatsende: drucken, unterschreiben, abgeben</a></li>
+    <li><a href="#urlaub"><span>10</span>Urlaub</a></li>
+    <li><a href="#jahr"><span>11</span>Jahresübersicht und Steuer</a></li>
+    <li><a href="#app"><span>12</span>Als App auf dem Handy</a></li>
+    <li><a href="#abgleich"><span>13</span>Geräte abgleichen</a></li>
+    <li><a href="#mehr"><span>14</span>Unter „Mehr“</a></li>
+    <li><a href="#fragen"><span>15</span>Häufige Fragen</a></li>
+  </ol>
+</nav>
+
+<!-- 1 -->
+<section class="karte kap" id="blick">
+  <h2><span class="nr">1</span>Auf einen Blick</h2>
+  <ol class="schritte">
+    <li><b>Einmal:</b> Ihre Daten und Ihre üblichen Zeiten eintragen.</li>
+    <li><b>Jeden Tag:</b> nichts tun. Jeder Werktag füllt sich bis heute von selbst mit Ihren Zeiten. Nur Tage, die anders waren, ändern Sie mit einem Tipp.</li>
+    <li><b>Am Monatsende:</b> den Spesennachweis drucken, von Hand unterschreiben und spätestens am <b>3. Werktag des Folgemonats</b> abgeben.</li>
+  </ol>
+  <p class="tipp"><span>Ohne Anmeldung bleibt alles auf Ihrem Gerät – <b>ein Konto ist nicht nötig</b>. Wer PC und Handy nutzt, kann beide freiwillig mit einem Konto abgleichen (Kapitel 13).</span></p>
+  <a class="nach-oben" href="#inhalt">↑ Zum Inhalt</a>
+</section>
+
+<!-- 2 -->
+<section class="karte kap" id="start">
+  <h2><span class="nr">2</span>Der erste Start</h2>
+  <p>Beim allerersten Öffnen führt Sie eine kurze Einrichtung durch ein paar Fragen:</p>
+  <ol class="schritte">
+    <li><b>Hell oder Dunkel</b> – wie das Werkzeug aussehen soll. Später jederzeit unter „Mehr“ → „Design“ änderbar.</li>
+    <li><b>Daten übertragen oder neu starten?</b> Haben Sie Rieb Spesen schon benutzt, tippen Sie <span class="knopf">„Daten übertragen“</span>: In der alten Fassung auf „Umzugs-Code kopieren“ tippen, hierher zurück und unten <span class="knopf">„Daten einfügen“</span> – alle Ihre Einträge sind da, die Einrichtung ist dann schon fertig. Mit einem Konto unter „Geräte abgleichen“ geht es auch über <span class="knopf">„Mit Konto anmelden“</span> (Kapitel 13). Alle anderen tippen <span class="knopf">„Neu starten“</span>.</li>
+    <li><b>Ihr Name</b> – er steht später auf Ihrem Spesennachweis.</li>
+    <li><b>Straße, Ort und Niederlassung.</b></li>
+    <li><b>Als was Sie arbeiten:</b> „Fahrer“, „Monteur Außendienst“ oder „Monteur Innendienst“. Davon hängt ab, welche Zeiten der Nachweis zeigt.</li>
+    <li><b>Ihr Bundesland</b> – damit die Feiertage automatisch richtig stehen.</li>
+    <li><b>Ihre üblichen Zeiten</b> – als Fahrer und Monteur Außendienst „Abfahrt WP“ und „Ankunft WP“, im Innendienst Beginn und Ende der Anwesenheit in der Niederlassung. Wissen Sie sie noch nicht, tippen Sie <span class="knopf">„Später eintragen“</span>.</li>
+    <li><b>Wie viele Urlaubstage im Jahr Sie haben</b> – ohne Vorgabe, jeder trägt seine eigenen ein.</li>
+    <li><b>Ob Sie Urlaubstage aus dem Vorjahr mitgenommen haben</b> – wenn ja, wie viele. Sie werden zu Ihren Urlaubstagen dazugerechnet.</li>
+    <li><b>Ob Sie dieses Jahr schon Urlaub hatten</b> – die Tage tragen Sie gleich hier ein, sie stehen dann auch in Ihrem Spesennachweis, ohne Pauschale. Für einen einzelnen Tag reicht das Von-Feld.</li>
+    <li><b>Ob Sie Mitteilungen möchten</b> – Rieb Spesen erinnert Sie dann an die Abgabe und schickt an den anderen Tagen den Spruch des Tages (Kapitel 14). Am iPhone kommt diese Frage nur in der App.</li>
+  </ol>
+  <p>Mit <span class="knopf">„Los geht’s“</span> sind Sie auf der Startseite. Mit dem Pfeil gehen Sie in der Einrichtung einen Schritt zurück.</p>
+  <figure class="bild" data-bild="einrichtung"><img alt="Einrichtung: Ihre üblichen Zeiten" loading="lazy"><figcaption>Ein Schritt der Einrichtung: Ihre üblichen Zeiten</figcaption></figure>
+  <p class="tipp"><span>Alles, was Sie hier eintragen, ändern Sie später im Bereich <b>Spesen</b> unter „Einstellungen für Ihren Spesennachweis“ (Kapitel 8) – Urlaubstage und Urlaub im Bereich <b>Urlaub</b> (Kapitel 10).</span></p>
+  <a class="nach-oben" href="#inhalt">↑ Zum Inhalt</a>
+</section>
+
+<!-- 3 -->
+<section class="karte kap" id="startseite">
+  <h2><span class="nr">3</span>Die Startseite</h2>
+  <ul>
+    <li><b>Ganz oben</b> – Ihr Gruß und darunter ein Spruch des Tages, jeden Tag ein anderer. Passt etwas zu Ihren Einträgen – Urlaub, Abgabe, Monatsende –, nimmt der Spruch darauf Bezug.</li>
+    <li><b>Spesen</b> – der Betrag des laufenden Monats, der wievielte Arbeitstag heute ist und bis wann abgegeben wird. Antippen öffnet den Monat.</li>
+    <li><b>Heute</b> – ob Ihr Tag läuft und mit welchen Zeiten. Antippen öffnet den heutigen Tag zum Ändern.</li>
+    <li><b>Urlaub</b> – wie viele Urlaubstage Ihnen noch bleiben.</li>
+    <li><b>Jahresübersicht</b> – Ihre Spesen des Jahres bis heute.</li>
+    <li>Darunter: <b>Anleitung</b>, <b>Mehr</b> und <b>Als App</b>.</li>
+  </ul>
+  <figure class="bild" data-bild="start"><img alt="Die Startseite" loading="lazy"><figcaption>Die Startseite</figcaption></figure>
+  <h3>Hin und zurück</h3>
+  <p><span class="nur-handy-text">Am Handy bringt Sie der runde Pfeil oben links zurück zur Startseite.</span>
+     <span class="nur-pc-text">Am PC steht in jedem Bereich oben die Leiste <b>Start · Spesen · Urlaub · Jahresübersicht · Mehr · Anleitung</b> – ein Klick genügt. Der runde Pfeil oben links führt zurück zur Startseite.</span></p>
+  <a class="nach-oben" href="#inhalt">↑ Zum Inhalt</a>
+</section>
+
+<!-- 4 -->
+<section class="karte kap" id="zeiten">
+  <h2><span class="nr">4</span>Zeiten für alle Tage</h2>
+  <p>Das Herzstück: Sie tragen Ihre üblichen Zeiten <b>einmal</b> ein – danach steht jeder Werktag automatisch mit diesen Zeiten in Ihrem Monat, Tag für Tag bis heute.</p>
+  <ol class="schritte">
+    <li>Bereich <b>Spesen</b> öffnen.</li>
+    <li>Bei der Karte <b>„Zeiten für alle Tage“</b> auf <span class="knopf">„Eintragen“</span> bzw. <span class="knopf">„Ändern“</span> tippen.</li>
+    <li>Beide Zeiten einstellen, darunter <b>„Jeden Tag gleich“</b> oder <b>„Jeden Tag anders“</b> wählen und <span class="knopf">„Übernehmen“</span>.</li>
+  </ol>
+  <figure class="bild schmal" data-bild="zeiten"><img alt="Zeiten für alle Tage" loading="lazy"><figcaption>„Zeiten für alle Tage“ – einmal eintragen, gilt für jeden Werktag</figcaption></figure>
+  <p>Tage, die Sie selbst geändert haben, bleiben dabei, wie sie sind.</p>
+
+  <h3>Jeden Tag gleich – oder jeden Tag anders</h3>
+  <p>Direkt unter den beiden Zeiten – oder später unter „Einstellungen für Ihren Spesennachweis“ bei <b>„Arbeitstag“</b> – wählen Sie:</p>
+  <ul>
+    <li><b>„Jeden Tag gleich“</b> – jeder Werktag mit Ihren Zeiten für alle Tage.</li>
+    <li><b>„Jeden Tag anders“</b> – kein Tag wie der andere: Montag bis Mittwoch 8:50 bis 10:00 Std Arbeitszeit, Donnerstag und Freitag 8:30 bis 9:10 Std – nie unter 8:30, nie über 10 Std, volle 10 Std an höchstens einem Tag pro Woche.</li>
+  </ul>
+
+  <h3>Den ganzen Monat auf einmal</h3>
+  <p>Im laufenden Monat steht in der Liste <b>„Ab … noch nicht erfasst“</b> mit dem Knopf <span class="knopf">„Rest des Monats mitfüllen“</span>. Ein Tipp füllt die restlichen Arbeitstage schon im Voraus – sie sind als „vorausgefüllt“ markiert. Mit <span class="knopf">„rückgängig“</span> sind sie wieder weg.</p>
+  <figure class="bild" data-bild="mitfuellen"><img alt="Rest des Monats mitfüllen" loading="lazy"><figcaption>„Rest des Monats mitfüllen“ in der Liste der Tage</figcaption></figure>
+  <a class="nach-oben" href="#inhalt">↑ Zum Inhalt</a>
+</section>
+
+<!-- 5 -->
+<section class="karte kap" id="tag">
+  <h2><span class="nr">5</span>Einen Tag ändern</h2>
+  <p>Tippen Sie den Tag in der Liste an – oder auf der Startseite die Karte <b>Heute</b>. Es öffnet sich der Tag:</p>
+  <ol class="schritte">
+    <li>Oben wählen, was der Tag ist: <b>„Arbeitstag“</b>, „Urlaub“, „Krank“, „Frei“, „Sonderurlaub“ oder „Elternzeit“.</li>
+    <li>Bei einem Arbeitstag die Zeit antippen – das Dreh-Rad öffnet sich. Stunde und Minute drehen, dann <span class="knopf">„Übernehmen“</span>.</li>
+    <li>Bei Bedarf die <b>besuchten Orte</b> eintragen (nicht im Innendienst).</li>
+    <li><span class="knopf">„Speichern“</span>.</li>
+  </ol>
+  <div class="bilder-paar">
+    <figure class="bild" data-bild="tag"><img alt="Ein Tag zum Ändern" loading="lazy"><figcaption>Ein Tag – die Leiste zeigt, wo er zwischen 8 und 10 Std liegt</figcaption></figure>
+    <figure class="bild" data-bild="drehrad"><img alt="Das Dreh-Rad" loading="lazy"><figcaption>Das Dreh-Rad für die Uhrzeit</figcaption></figure>
+  </div>
+  <ul>
+    <li><b>Zurück auf Ihre üblichen Zeiten:</b> <span class="knopf">„Auf Standardzeiten zurücksetzen“</span> (bei einem Tag in der Zukunft heißt der Knopf „Eintrag entfernen“).</li>
+    <li><b>Ein Samstag:</b> Samstage stehen als schmale Zeile in der Liste – antippen und als Arbeitstag eintragen. Wer jede Woche samstags arbeitet, schaltet unter „Arbeitstag“ <b>„Samstag als Tageszeile“</b> ein.</li>
+    <li><b>Mehrere Tage Urlaub oder Krank am Stück:</b> siehe Kapitel 7 – das geht schneller.</li>
+  </ul>
+  <a class="nach-oben" href="#inhalt">↑ Zum Inhalt</a>
+</section>
+
+<!-- 6 -->
+<section class="karte kap" id="regeln">
+  <h2><span class="nr">6</span>Die Rechenregeln</h2>
+  <div class="regeln">
+    <div class="regel"><b>Pause</b><span>Von jedem Arbeitstag werden <b>30 Minuten</b> abgezogen. Eine Pause tragen Sie nicht ein.</span></div>
+    <div class="regel"><b>Pauschale</b><span>Gibt es ab <b>mehr als 8 Std</b> Arbeitszeit (nach Abzug der Pause).</span></div>
+    <div class="regel"><b>Grenze</b><span><b>Bis genau 10 Std</b> ist ein Tag in Ordnung. Darüber wird er nicht genehmigt.</span></div>
+    <div class="regel"><b>Feiertage</b><span>Stehen für Ihr Bundesland automatisch drin.</span></div>
+  </div>
+  <p class="leise">Beispiel: Abfahrt 06:00, Ankunft 15:00 – das sind 9 Stunden, abzüglich Pause 8,5 Std: Pauschale. Ankunft 16:30 ergibt genau 10 Std: noch in Ordnung. Ankunft 16:35: zu viel.</p>
+  <p class="tipp wichtig"><span>Liegt ein Tag über 10 Std, trägt er in der Liste die Marke „über 10 Std“ – und der Nachweis lässt sich erst drucken oder speichern, wenn die Zeiten angepasst sind.</span></p>
+  <a class="nach-oben" href="#inhalt">↑ Zum Inhalt</a>
+</section>
+
+<!-- 7 -->
+<section class="karte kap" id="abwesenheit">
+  <h2><span class="nr">7</span>Abwesenheiten am Stück</h2>
+  <p>Urlaub, Krankheit oder freie Tage über mehrere Tage tragen Sie in einem Rutsch ein:</p>
+  <ol class="schritte">
+    <li>Im Bereich <b>Spesen</b> auf <span class="knopf">„Abwesenheit“</span> tippen (im Bereich Urlaub: „Abwesenheit eintragen“).</li>
+    <li>„Von“ und „Bis“ wählen. Für einen einzelnen Tag reicht „Von“.</li>
+    <li>Die Art antippen: Urlaub, Krank, Frei, Sonderurlaub oder Elternzeit.</li>
+    <li><span class="knopf">„Eintragen“</span>.</li>
+  </ol>
+  <figure class="bild schmal" data-bild="abwesenheit"><img alt="Abwesenheit eintragen" loading="lazy"><figcaption>Abwesenheit eintragen</figcaption></figure>
+  <p>Wochenenden und Feiertage werden beim Zählen übersprungen.</p>
+  <p><b>Wieder herausnehmen:</b> Bereich Spesen → unter „Korrigieren &amp; zurücksetzen“ → <b>„Eingetragene Abwesenheiten“</b> → beim Zeitraum auf <span class="knopf">✕</span> tippen. Die Tage gelten danach wieder als Arbeitstage.</p>
+  <figure class="bild" data-bild="korrigieren"><img alt="Korrigieren und zurücksetzen" loading="lazy"><figcaption>„Korrigieren &amp; zurücksetzen“ – mit ✕ einen Zeitraum herausnehmen</figcaption></figure>
+  <a class="nach-oben" href="#inhalt">↑ Zum Inhalt</a>
+</section>
+
+<!-- 8 -->
+<section class="karte kap" id="einstellungen">
+  <h2><span class="nr">8</span>Einstellungen für Ihren Spesennachweis</h2>
+  <p>Im Bereich <b>Spesen</b> <span class="nur-handy-text">unter der Liste der Tage</span><span class="nur-pc-text">in der rechten Spalte</span>. Oben steht, wie viel schon eingerichtet ist („… von … eingerichtet“). Jede Zeile zeigt einen <b>Haken</b>, wenn sie eingerichtet ist – sonst <b>„fehlt noch“</b>. Ein Tipp auf die Zeile öffnet genau diesen Teil.</p>
+  <ul>
+    <li><b>Ihre Daten</b> – Name, Adresse, Niederlassung, Rolle, Bundesland und Ihre E-Mail für „CSV an mich selbst“.</li>
+    <li><b>Arbeitstag</b> – „Jeden Tag gleich“ oder „Jeden Tag anders“, „Samstag als Tageszeile“ und die besuchten Orte als Vorgabe für jeden Tag.</li>
+    <li><b>Anwesenheit in der Niederlassung</b> (Fahrer und Monteur Außendienst) – sind Sie an einem festen Wochentag in der Niederlassung, trägt das Werkzeug diese Zeit automatisch ein.</li>
+    <li><b>Pauschalen &amp; Gehalt</b> – die Höhe der Pauschalen und was über die Gehaltsabrechnung bezahlt wird.</li>
+  </ul>
+  <div class="bilder-paar">
+    <figure class="bild" data-bild="einstellungen"><img alt="Einstellungen für Ihren Spesennachweis" loading="lazy"><figcaption>Einstellungen: Haken = eingerichtet, sonst „fehlt noch“</figcaption></figure>
+    <figure class="bild" data-bild="arbeitstag"><img alt="Arbeitstag: Jeden Tag gleich oder anders" loading="lazy"><figcaption>„Arbeitstag“: Jeden Tag gleich oder anders</figcaption></figure>
+  </div>
+  <h3>Korrigieren &amp; zurücksetzen</h3>
+  <p>Direkt unter den Einstellungen (Bild in Kapitel 7):</p>
+  <ul>
+    <li><b>Eingetragene Abwesenheiten</b> – mit ✕ nehmen Sie einen ganzen Zeitraum wieder heraus.</li>
+    <li><b>Spesen-Einträge zurücksetzen</b> – alle eigenen Zeiten, Orte und Notizen; danach gelten wieder Ihre Zeiten für alle Tage. Abgeschlossene Monate bleiben unverändert, und vorher wird automatisch eine Sicherung gespeichert.</li>
+  </ul>
+  <a class="nach-oben" href="#inhalt">↑ Zum Inhalt</a>
+</section>
+
+<!-- 9 -->
+<section class="karte kap" id="monatsende">
+  <h2><span class="nr">9</span>Monatsende: drucken, unterschreiben, abgeben</h2>
+  <p>Oben im Bereich <b>Spesen</b> stehen die Knöpfe für den Abschluss:</p>
+  <ul>
+    <li><span class="knopf">„Drucken“</span> – öffnet die Vorschau Ihres Spesennachweises, dort drucken Sie. Der Monat bleibt offen.</li>
+    <li><span class="knopf">„PDF ansehen“</span> – nur ansehen.</li>
+    <li><span class="knopf">„PDF speichern“</span> – speichert die PDF auf Ihrem Gerät. Abgeschlossen wird der Monat nur über „Abschließen“.</li>
+    <li><span class="knopf">„Abschließen“</span> – schließt den Monat ab und legt die fertige PDF im Ordner ab.</li>
+  </ul>
+  <figure class="bild" data-bild="spesen"><img alt="Bereich Spesen mit den Knöpfen" loading="lazy"><figcaption>Bereich Spesen: Drucken, PDF ansehen, PDF speichern, Abschließen, Abwesenheit</figcaption></figure>
+  <p class="tipp wichtig"><span>Den Ausdruck <b>von Hand unterschreiben</b> und spätestens am <b>3. Werktag des Folgemonats</b> abgeben.</span></p>
+  <h3>Abgeschlossene Monate</h3>
+  <p>Ein abgeschlossener Monat ist gesperrt – oben steht „Abgeschlossen am …“, und die PDF liegt im Ordner <b>„Abgeschlossene Spesen“</b> (<span class="nur-handy-text">unten im Bereich Spesen</span><span class="nur-pc-text">rechts im Bereich Spesen</span>). Dort finden Sie Monat für Monat jede PDF wieder.</p>
+  <div class="bilder-paar">
+    <figure class="bild" data-bild="abgeschlossen"><img alt="Abgeschlossener Monat mit Wieder öffnen" loading="lazy"><figcaption>Ein abgeschlossener Monat</figcaption></figure>
+    <figure class="bild" data-bild="ordner"><img alt="Ordner Abgeschlossene Spesen" loading="lazy"><figcaption>Der Ordner „Abgeschlossene Spesen“</figcaption></figure>
+  </div>
+  <p><b>Noch etwas ändern?</b> <span class="knopf">„Wieder öffnen“</span> – ein Tipp, und der Monat ist wieder frei. Schließen Sie ihn danach erneut ab, ersetzt die neue PDF die alte im Ordner.</p>
+  <p class="tipp"><span><b>Drucken schließt nicht ab.</b> So können Sie auch mitten im Monat einen Zwischenstand drucken.</span></p>
+  <a class="nach-oben" href="#inhalt">↑ Zum Inhalt</a>
+</section>
+
+<!-- 10 -->
+<section class="karte kap" id="urlaub">
+  <h2><span class="nr">10</span>Urlaub</h2>
+  <p>Der Bereich <b>Urlaub</b> zeigt oben, wie viele Tage Ihnen noch bleiben, darunter den Kalender mit allen zwölf Monaten. Einen Tag antippen öffnet ihn zum Ändern.</p>
+  <figure class="bild" data-bild="urlaub"><img alt="Bereich Urlaub" loading="lazy"><figcaption>Bereich Urlaub</figcaption></figure>
+  <ul>
+    <li><b>Urlaubsanspruch</b> – bei der Karte „Urlaubsanspruch“ auf <span class="knopf">„Ändern“</span>: Urlaubstage des Jahres und Übertrag aus dem Vorjahr. Manche haben 30, manche 28 – tragen Sie ein, was für Sie gilt.</li>
+    <li><b>Mehrere Tage</b> – „Abwesenheit eintragen“ (Kapitel 7).</li>
+    <li><b>Urlaub steht automatisch in den Spesen</b> – ein Urlaubstag zählt dort als Urlaub, ohne Pauschale. Das gilt auch umgekehrt.</li>
+    <li><b>Im Urlaub krank geworden?</b> Tragen Sie die Tage noch einmal als „Krank“ ein – sie stehen Ihnen dann wieder zur Verfügung.</li>
+    <li><span class="knopf">„Drucken“</span> – der Urlaubskalender als PDF.</li>
+  </ul>
+  <h3>Resturlaub aus dem Vorjahr</h3>
+  <p>Das Werkzeug rechnet aus, wie viel Urlaub laut Ihren Einträgen aus dem Vorjahr übrig ist, und fragt beim Öffnen nach: <b>„Resturlaub aus …“</b>. Stimmt die Zahl, tippen Sie <span class="knopf">„Speichern“</span>. Wenn nicht alles eingetragen war, tragen Sie Ihren echten Rest ein. <span class="knopf">„Später“</span> fragt am nächsten Tag wieder.</p>
+  <figure class="bild schmal" data-bild="resturlaub"><img alt="Resturlaub aus dem Vorjahr bestätigen" loading="lazy"><figcaption>Resturlaub bestätigen</figcaption></figure>
+  <p class="tipp"><span>Bis Sie bestätigen, <b>zählt der Rest nicht mit</b>. Im Bereich Urlaub steht dann „noch nicht bestätigt“ mit dem Knopf „Prüfen“.</span></p>
+  <p><b>Ganz unten:</b> „Urlaub &amp; Abwesenheiten zurücksetzen“ – setzt alle Urlaubs-, Krank- und Frei-Tage und den Anspruch zurück (danach gelten wieder 30 Tage). Abgeschlossene Monate bleiben unverändert, vorher wird automatisch eine Sicherung gespeichert.</p>
+  <a class="nach-oben" href="#inhalt">↑ Zum Inhalt</a>
+</section>
+
+<!-- 11 -->
+<section class="karte kap" id="jahr">
+  <h2><span class="nr">11</span>Jahresübersicht und Steuer</h2>
+  <p>Die <b>Jahresübersicht</b> rechnet alle Monate des Jahres zusammen: Säulen je Monat und eine Tabelle mit Tagen, Abwesenheiten und Betrag, unten die Summe. Mit den Pfeilen wechseln Sie das Jahr.</p>
+  <figure class="bild" data-bild="jahr"><img alt="Jahresübersicht" loading="lazy"><figcaption>Die Jahresübersicht</figcaption></figure>
+  <ul>
+    <li><span class="knopf">„Drucken“</span> – ein Blatt A4 quer, praktisch für die <b>Steuererklärung</b>.</li>
+    <li><b>„CSV für die Steuer“</b> (im Bereich Spesen, <span class="nur-handy-text">unten</span><span class="nur-pc-text">rechts</span>) – die Tage als Tabelle: speichern, drucken oder an Ihre eigene E-Mail schicken. Dafür vorher unter „Ihre Daten“ Ihre E-Mail eintragen.</li>
+  </ul>
+  <a class="nach-oben" href="#inhalt">↑ Zum Inhalt</a>
+</section>
+
+<!-- 12 -->
+<section class="karte kap" id="app">
+  <h2><span class="nr">12</span>Als App auf dem Handy</h2>
+  <p>Auf der Startseite <b>„Als App“</b> antippen. Das Fenster zeigt die Schritte – oben wählen Sie <b>iPhone</b> oder <b>Android</b>.</p>
+  <ul>
+    <li><b>iPhone:</b> die Seite in <b>Safari</b> öffnen → unten das Teilen-Symbol (Quadrat mit Pfeil nach oben) → „Zum Home-Bildschirm“ → „Hinzufügen“.</li>
+    <li><b>Android:</b> die Seite in <b>Chrome</b> öffnen → meist meldet sich der Browser von selbst mit „App installieren“. Falls nicht: Menü ⋮ oben rechts → „App installieren“ oder „Zum Startbildschirm hinzufügen“.</li>
+  </ul>
+  <figure class="bild schmal" data-bild="app"><img alt="Am Handy als App" loading="lazy"><figcaption>Das Fenster „Am Handy als App“</figcaption></figure>
+  <p class="tipp wichtig"><span><b>Ohne Anmeldung speichern App und Browser getrennt.</b> Bleiben Sie bei einem Weg – oder melden Sie sich in beiden unter „Mehr“ → „Geräte abgleichen“ an, dann ist überall derselbe Stand (Kapitel 13). Ohne Anmeldung wechseln Sie über „Backup als Datei speichern“ und „Backup wiederherstellen“.</span></p>
+  <p>Als App und im Browser sieht alles gleich aus und funktioniert gleich.</p>
+  <a class="nach-oben" href="#inhalt">↑ Zum Inhalt</a>
+</section>
+
+<!-- 13 -->
+<section class="karte kap" id="abgleich">
+  <h2><span class="nr">13</span>Geräte abgleichen</h2>
+  <p>Freiwillig und kostenlos: Mit einem Konto steht auf PC, Handy, App und Browser überall derselbe Stand. Ohne Konto bleibt alles wie bisher nur auf dem jeweiligen Gerät. Sie finden es ganz oben unter <b>„Mehr“</b> → <b>„Geräte abgleichen“</b>.</p>
+  <h3>Konto anlegen – auf dem ersten Gerät</h3>
+  <ol class="schritte">
+    <li>„Mehr“ → <span class="knopf">„Anmelden“</span> antippen.</li>
+    <li>Oben <span class="knopf">„Neues Konto“</span> wählen.</li>
+    <li>Ihre E-Mail und ein Passwort eintragen (mindestens 6 Zeichen).</li>
+    <li>Den Datenschutzhinweis lesen und den Haken <b>„Hinweis gelesen – einverstanden“</b> setzen.</li>
+    <li><span class="knopf">„Konto anlegen“</span>.</li>
+  </ol>
+  <div class="bilder-paar">
+    <figure class="bild" data-bild="abgleich"><img alt="Geräte abgleichen unter Mehr" loading="lazy"><figcaption>„Geräte abgleichen“ ganz oben unter „Mehr“</figcaption></figure>
+    <figure class="bild" data-bild="abgleich-konto"><img alt="Ein neues Konto anlegen" loading="lazy"><figcaption>Ein neues Konto anlegen</figcaption></figure>
+  </div>
+  <p>Ihre bisherigen Einträge gehen dabei mit in Ihr Konto.</p>
+  <h3>Auf dem zweiten Gerät</h3>
+  <p>Dort ebenfalls „Mehr“ → <span class="knopf">„Anmelden“</span> – mit derselben E-Mail und demselben Passwort. Nach ein paar Sekunden steht dort derselbe Stand. Was Sie danach auf einem Gerät ändern, kommt kurz darauf auf dem anderen an. Am Handy gilt das auch für App und Browser: Melden Sie sich in beiden an.</p>
+  <p class="tipp wichtig"><span>Beim ersten Anmelden übernimmt ein Gerät den Stand aus Ihrem Konto. <b>Legen Sie das Konto deshalb auf dem Gerät an, auf dem Ihre Einträge vollständig sind.</b></span></p>
+  <h3>Was es dort noch gibt</h3>
+  <ul>
+    <li><b>Angemeldet</b> – zeigt Ihre E-Mail und wann zuletzt abgeglichen wurde.</li>
+    <li><b>Passwort vergessen?</b> – im Fenster „Anmelden“ Ihre E-Mail eintragen und „Passwort vergessen?“ antippen. Sie bekommen eine Mail zum Zurücksetzen.</li>
+    <li><b>Abmelden</b> – auf diesem Gerät bleibt alles, es wird nur nicht mehr abgeglichen.</li>
+    <li><b>Konto löschen</b> – zur Sicherheit mit Ihrem Passwort. Gelöscht werden Ihr Konto und alle Ihre Daten in der Cloud; auf Ihren Geräten bleibt alles, wie es ist.</li>
+  </ul>
+  <a class="nach-oben" href="#inhalt">↑ Zum Inhalt</a>
+</section>
+
+<!-- 14 -->
+<section class="karte kap" id="mehr">
+  <h2><span class="nr">14</span>Unter „Mehr“</h2>
+  <ul>
+    <li><b>Geräte abgleichen</b> – ganz oben: anmelden, abmelden, Konto löschen (Kapitel 13).</li>
+    <li><b>Design</b> – Hell oder Dunkel, gilt für dieses Gerät.</li>
+    <li><b>Mitteilungen</b> – Erinnerung an die Abgabe und Spruch des Tages auf dieses Gerät (siehe unten).</li>
+    <li><b>Backup als Datei speichern</b> – sichert alle Monate, Urlaub und Einstellungen in eine Datei. <b>Backup wiederherstellen</b> holt sie zurück.</li>
+    <li><b>Feedback</b> – Verbesserungsvorschlag oder Fehler melden.</li>
+    <li><b>QR-Code</b> – zum Weitergeben an Kollegen.</li>
+    <li><b>Sprache</b> – Sprache von Vordruck und Ausdruck (Deutsch oder English).</li>
+    <li><b>Änderungshistorie</b> – was sich am Werkzeug geändert hat.</li>
+    <li><b>Zurücksetzen</b> – löscht die Daten auf diesem Gerät. Vorher wird automatisch eine Sicherung gespeichert. Sind Sie angemeldet, werden Sie auf diesem Gerät vorher abgemeldet – Ihr Konto und Ihre anderen Geräte bleiben unverändert. Einzelne Bereiche setzen Sie in Spesen (Kapitel 8) bzw. Urlaub (Kapitel 10) zurück.</li>
+  </ul>
+  <figure class="bild" data-bild="mehr"><img alt="Bereich Mehr" loading="lazy"><figcaption>Bereich Mehr</figcaption></figure>
+  <p class="tipp"><span>Ohne Anmeldung liegt alles nur auf Ihrem Gerät. Speichern Sie dann ab und zu ein <b>Backup</b> – spätestens vor einem Gerätewechsel. Rieb Spesen erinnert Sie daran: höchstens einmal im Monat, mit „Jetzt sichern“, „Lieber anmelden“ oder „Später“. Unter „Backup als Datei speichern“ steht, wann Sie zuletzt gesichert haben.</span></p>
+  <h3>Mitteilungen</h3>
+  <p>Rieb Spesen meldet sich einmal am Tag – an Arbeitstagen um 6 Uhr, am Wochenende und an Feiertagen um 9 Uhr:</p>
+  <ul>
+    <li><b>Erinnerungen</b> – am 1. bis 3.&nbsp;Werktag, solange der Vormonat noch nicht abgeschlossen ist; ist die Abgabe verpasst, einmal pro Woche, bis er abgeschlossen ist; und am letzten Arbeitstag im Monat.</li>
+    <li><b>Spruch des Tages</b> – an allen anderen Tagen, derselbe wie auf der Startseite. Auch am Wochenende, an Feiertagen und im Urlaub.</li>
+  </ul>
+  <p>Einschalten: „Mehr“ → „Mitteilungen“ → <span class="knopf">„Einschalten“</span>, dann am Gerät „Erlauben“ tippen. Gleich danach kommt eine Probe-Mitteilung. Beide Schalter lassen sich einzeln abschalten; sind beide aus, kommt nichts mehr.</p>
+  <figure class="bild schmal" data-bild="mitteilungen"><img alt="Mitteilungen einschalten" loading="lazy"><figcaption>„Mehr“ → „Mitteilungen“</figcaption></figure>
+  <p class="tipp wichtig"><span><b>Am iPhone gibt es Mitteilungen nur in der App</b> (Kapitel 12) – so will es Apple, im Safari-Fenster geht es nicht. Am PC, am Mac und unter Android geht es auch im Browser.</span></p>
+  <p class="tipp"><span><b>Datenschutz:</b> Dafür meldet sich das Gerät bei Google Firebase im Projekt von Mirko Rieb an. Gespeichert werden nur die Mitteilungs-Adresse des Geräts und die Tage, an denen es geweckt wird – kein Name, keine Einträge. Den Text baut Ihr Gerät selbst.</span></p>
+  <a class="nach-oben" href="#inhalt">↑ Zum Inhalt</a>
+</section>
+
+<!-- 15 -->
+<section class="karte kap" id="fragen">
+  <h2><span class="nr">15</span>Häufige Fragen</h2>
+  <p class="frage">Der Monat ist abgeschlossen – ich muss noch etwas ändern.</p>
+  <p>Im Bereich Spesen den Monat wählen, <span class="knopf">„Wieder öffnen“</span>, ändern, dann erneut „Abschließen“. Die neue PDF ersetzt die alte im Ordner.</p>
+  <p class="frage">Es kommt „Speichern nicht möglich“.</p>
+  <p>Ein Tag liegt über 10 Std. Das Fenster nennt den Tag – Zeiten anpassen, dann geht es (Kapitel 6).</p>
+  <p class="frage">Ich bin im Urlaub krank geworden.</p>
+  <p>Die Tage noch einmal als „Krank“ eintragen – sie stehen Ihnen dann wieder als Urlaub zur Verfügung.</p>
+  <p class="frage">Ich bekomme ein neues Handy.</p>
+  <p><b>Mit Konto:</b> Rieb Spesen auf dem neuen Handy öffnen, beim ersten Start „Daten übertragen“ → „Mit Konto anmelden“ – Ihr Stand kommt von selbst (Kapitel 13). <b>Ohne Konto:</b> auf dem alten Gerät „Mehr“ → „Backup als Datei speichern“, die Datei auf das neue Gerät bringen und dort „Mehr“ → „Backup wiederherstellen“.</p>
+  <p class="frage">In der App steht etwas anderes als im Browser.</p>
+  <p>Ohne Anmeldung speichern App und Browser getrennt (Kapitel 12). Melden Sie sich in beiden mit demselben Konto an (Kapitel 13) – das Konto zuerst dort anlegen, wo Ihre Einträge vollständig sind; das andere übernimmt beim Anmelden diesen Stand.</p>
+  <p class="frage">Ich bekomme keine Mitteilungen.</p>
+  <p>Am iPhone gibt es sie nur in der App, nicht im Safari-Fenster (Kapitel 12). Sehen Sie unter „Mehr“ → „Mitteilungen“ nach, ob sie an sind – und in den Einstellungen des Geräts, ob Rieb Spesen Mitteilungen zeigen darf. Öffnen Sie Rieb Spesen ab und zu: Wer es drei Monate nicht öffnet, bekommt danach keine Mitteilungen mehr, bis er es wieder öffnet.</p>
+  <p class="frage">Unter der Mitteilung steht „from Rieb Spesen“.</p>
+  <p>Das setzt das iPhone bei jeder App vom Home-Bildschirm selbst darunter – auch auf einem deutschen iPhone auf Englisch. Ändern lässt es sich nicht.</p>
+  <p class="frage">Ich habe mein Passwort vergessen.</p>
+  <p>„Mehr“ → „Anmelden“, Ihre E-Mail eintragen und „Passwort vergessen?“ antippen – Sie bekommen eine Mail zum Zurücksetzen.</p>
+  <a class="nach-oben" href="#inhalt">↑ Zum Inhalt</a>
+</section>
+
+<p class="schluss">Fragen oder Ideen? „Mehr“ → „Feedback“ – oder sprechen Sie Mirko Rieb direkt an.</p>
+
+</main>
+
+<script>
+(function () {
+  var d = document.documentElement;
+  var rahmen = null;
+  try { rahmen = window.frameElement; } catch (e) { rahmen = null; }
+
+  /* PC oder Handy - nur nach Breite, dieselbe Grenze wie rieb.css (1100 px).
+     Im Rahmen zaehlt das App-Fenster, nicht der schmalere Rahmen. */
+  function breite() {
+    try { if (rahmen && window.parent) return window.parent.innerWidth; } catch (e) {}
+    return window.innerWidth;
+  }
+  function design() {
+    try { return localStorage.getItem("rieb_design") === "dunkel" ? "dunkel" : "hell"; } catch (e) { return "hell"; }
+  }
+  /* Aufgenommen mit Pixeldichte 2 (Handy) bzw. 1,5 (PC) - angezeigt in
+     Originalgroesse, nie hochgezogen (sonst wird ein kleines Fenster unscharf
+     auf volle Breite gestreckt); breiter als Platz ist, wird verkleinert. */
+  function groesse(img) {
+    if (!img.naturalWidth) return;
+    img.style.width = Math.round(img.naturalWidth / (img.getAttribute("data-dichte") || 2)) + "px";
+  }
+  function bilder() {
+    var geraet = breite() >= 1100 ? "pc" : "handy", ds = design();
+    d.classList.toggle("pc", geraet === "pc");
+    d.classList.toggle("handy", geraet === "handy");
+    d.classList.toggle("dunkel", ds === "dunkel");
+    var f = document.querySelectorAll("figure[data-bild]");
+    for (var i = 0; i < f.length; i++) {
+      var img = f[i].querySelector("img");
+      var src = "anleitung-bilder/" + geraet + "-" + ds + "-" + f[i].getAttribute("data-bild") + ".jpg";
+      if (img.getAttribute("src") !== src) {
+        f[i].classList.remove("fehlt");
+        img.style.width = "";
+        img.setAttribute("data-dichte", geraet === "pc" ? "1.5" : "2");
+        img.onload = function () { groesse(this); };
+        img.setAttribute("src", src);
+        if (img.complete) groesse(img);
+      }
+    }
+  }
+  document.addEventListener("error", function (ev) {
+    var t = ev.target;
+    if (t && t.tagName === "IMG" && t.parentNode && t.parentNode.matches("figure[data-bild]")) t.parentNode.classList.add("fehlt");
+  }, true);
+
+  /* Text, der nur am Handy bzw. nur am PC stimmt */
+  var stil = document.createElement("style");
+  stil.textContent = "html.pc .nur-handy-text,html.handy .nur-pc-text{display:none}";
+  document.head.appendChild(stil);
+
+  /* Eingebettet: Rahmen auf volle Laenge - kein zweiter Rollbalken */
+  var anl = document.getElementById("anl");
+  function hoehe() {
+    if (!rahmen) return;
+    var h = Math.ceil(anl.getBoundingClientRect().bottom + (window.scrollY || 0));
+    if (h > 0) { rahmen.style.height = h + "px"; d.classList.add("hoehe-ok"); }
+  }
+
+  /* Sprungmarken: weich hinscrollen - eingebettet scrollt die App, nicht der Rahmen */
+  function scroller(el) {
+    var doc = el.ownerDocument, win = doc.defaultView;
+    for (var p = el.parentElement; p; p = p.parentElement) {
+      var s = win.getComputedStyle(p);
+      if (/(auto|scroll)/.test(s.overflowY) && p.scrollHeight > p.clientHeight + 1) return p;
+    }
+    return doc.scrollingElement || doc.documentElement;
+  }
+  function springe(ziel) {
+    var weich = !(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    if (rahmen) {
+      var sc = scroller(rahmen);
+      var oben = sc === rahmen.ownerDocument.scrollingElement ? 0 : sc.getBoundingClientRect().top;
+      var y = rahmen.getBoundingClientRect().top + ziel.getBoundingClientRect().top - oben - 76;
+      sc.scrollBy({ top: y, behavior: weich ? "smooth" : "auto" });
+    } else {
+      window.scrollBy({ top: ziel.getBoundingClientRect().top - 12, behavior: weich ? "smooth" : "auto" });
+    }
+  }
+  document.addEventListener("click", function (ev) {
+    var a = ev.target.closest ? ev.target.closest('a[href^="#"]') : null;
+    if (!a) return;
+    var ziel = document.getElementById(a.getAttribute("href").slice(1));
+    if (!ziel) return;
+    ev.preventDefault();
+    springe(ziel);
+  });
+
+  bilder();
+  hoehe();
+  if (window.ResizeObserver) new ResizeObserver(hoehe).observe(anl);
+  window.addEventListener("load", hoehe);
+  /* Aendert sich die Breite des App-Fensters, aendert sich auch die des
+     Rahmens - sein eigenes resize genuegt (kein Zuhoerer im App-Fenster,
+     der beim naechsten Oeffnen der Anleitung doppelt haengen bliebe). */
+  window.addEventListener("resize", function () { bilder(); hoehe(); });
+  /* Design unter "Mehr" umgestellt: kommt hier als storage-Ereignis an */
+  window.addEventListener("storage", function (ev) { if (ev.key === "rieb_design") bilder(); });
+})();
+</script>
+</body>
+</html>

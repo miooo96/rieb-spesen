@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Rieb Spesen</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<!-- ===================================================================
+     STILLGELEGT - diese Seite leitet nur noch weiter.
+
+     Hier lag bis zum 13.08.2026 eine eigene Arbeitszeit-App fuers Handy.
+     Gebaut wurde sie, weil das Spesenblatt am Handy unbrauchbar war:
+     896 px breite Tabelle auf 393 px Display, jede Zeile musste seitlich
+     geschoben werden.
+
+     Dieser Grund ist entfallen. Das Tool selbst hat jetzt eine
+     Kartenansicht fuer die App, und die Arbeitszeit steckt ohnehin als
+     Panel darin. Zwei Ansichten derselben Zahlen nebeneinander zu
+     pflegen waere nur eine Fehlerquelle gewesen.
+
+     WARUM DIE DATEI TROTZDEM EXISTIERT - drei Gruende:
+
+     1. Wer die App vor dem 13.08. zum Startbildschirm hinzugefuegt hat,
+        traegt "/app/index.html" fest im Symbol. Das iPhone schreibt die
+        Startadresse beim Hinzufuegen fest und aendert sie nie wieder.
+        Ohne diese Datei liefe so ein Symbol ins Leere - eine Fehlerseite
+        statt der Abrechnung, moeglicherweise mitten im Monat.
+
+     2. Im selben Ordner liegt manifest.json. Das ist der
+        Installations-Einstieg fuer Android. Der Ordner darf also ohnehin
+        nicht verschwinden.
+
+     3. Der Service Worker hat "/app/" im Zwischenspeicher. Eine
+        weiterleitende Seite raeumt sich damit von selbst auf.
+
+     Die alte Fassung ist ueber Git wiederherstellbar (Stand f04edd3).
+     =================================================================== -->
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0A0C10">
+<link rel="icon" type="image/png" href="../icons/icon-192.png">
+<link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Rieb Spesen">
+
+<!-- Weiterleitung auch ohne JavaScript, etwa wenn es abgeschaltet ist -->
+<meta http-equiv="refresh" content="0; url=../index.html">
+<link rel="canonical" href="../index.html">
+
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif;
+    margin: 0; background: #0A0C10; color: #F2F4F7;
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh; padding: 24px; text-align: center;
+  }
+  /* 08.10.2026: neutral ("Rieb Spesen") statt frueherem Logo und Firmen-Orange */
+  .kasten {
+    background: #171B23; border-radius: 24px; padding: 28px 24px;
+    max-width: 380px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+  }
+  img { height: 48px; width: 48px; margin-bottom: 14px; border-radius: 12px; }
+  h1 { font-size: 1.05rem; margin: 0 0 10px; }
+  p { font-size: 0.9rem; line-height: 1.5; color: #A0A8B4; margin: 0 0 16px; }
+  a {
+    display: inline-block; background: #F2F4F7; color: #0E1116; font-weight: 600;
+    text-decoration: none; padding: 12px 20px; border-radius: 999px;
+    font-size: 0.92rem;
+  }
+</style>
+</head>
+<body>
+  <div class="kasten">
+    <img src="../icons/favicon-180.png" alt="Rieb Spesen">
+    <h1>Einen Moment …</h1>
+    <!-- 07.10.2026: Hier stand "Die Arbeitszeit steckt jetzt direkt im
+         Spesen-Rechner - als Knopf ⏱️ Arbeitszeit". Kollegen haben die
+         Arbeitszeit nicht (Mirko: "entferne die bereiche wo das noch steht"). -->
+    <p>
+      Rieb Spesen öffnet sich – Sie werden weitergeleitet.
+    </p>
+    <a href="../index.html">Weiter zu Rieb Spesen</a>
+  </div>
+
+<script>
+/* Sofort weiterleiten. "replace" statt "href", damit der Zurueck-Knopf
+   nicht wieder auf dieser Zwischenseite landet und man in einer Schleife
+   festhaengt. Ein vorhandener Anker (#arbeitszeit) wird mitgenommen,
+   damit die Schnellzugriffe weiterhin das richtige Panel oeffnen. */
+location.replace("../index.html" + (location.hash || ""));
+</script>
+</body>
+</html>

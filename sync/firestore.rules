@@ -1,0 +1,69 @@
+rules_version = '2';
+
+// Sicherheitsregeln fuer Cloud Firestore.
+// Kernaussage: Jeder angemeldete Fahrer darf AUSSCHLIESSLICH unter seiner
+// eigenen Nutzer-ID lesen und schreiben. Kein Kollege kommt an die Daten
+// eines anderen – das ist hier technisch erzwungen, nicht nur per Bildschirm.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // users/{uid}/state/{schluessel}  UND  users/{uid}/pdfs/{id}
+    // ({sammlung} deckt beide Unter-Sammlungen ab: die synchronisierten
+    // Daten ("state") und die abgelegten PDFs ("pdfs", Version 2).)
+    //
+    // FUER ALLE (seit 09.10.2026, Entscheidung 42 - Mirko: freiwillig, jeder
+    // legt sein Konto selbst an). Bis dahin stand hier zusaetzlich
+    //   && request.auth.token.email == "mirkorieb@t-online.de"
+    // (nur Mirkos Konto). Jetzt darf jeder Angemeldete NUR unter seiner
+    // eigenen uid lesen und schreiben - die uid-Zeile macht die Trennung.
+    // Erlaubt sind nur die Sammlungen, die das Werkzeug benutzt:
+    //   state (Eintraege), pdfs (abgelegte PDFs), konto (Einwilligung).
+    match /users/{uid}/{sammlung}/{doc} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == uid
+                         && sammlung in ["state", "pdfs", "konto"];
+    }
+
+    // mitteilungen/{id} (Mitteilungen, 11.10.2026 - Mirko: "ja in ordnung",
+    // "ja du gibst die anleitung"). EIN Dokument je Geraet, das unter
+    // "Mehr" -> "Mitteilungen" eingeschaltet hat - auch OHNE Konto.
+    // Darin NUR: die Mitteilungs-Adresse des Geraets (endpoint, p256dh, auth),
+    // an welchen Tagen um welche Stunde es geweckt werden will (plan, z. B.
+    // "2026-10-12@6,2026-10-13@9"), wann es das zuletzt gemeldet hat (stand)
+    // und an welchem Tag der Weckruf schon raus ist (gesendet).
+    // KEIN Name, KEINE Eintraege - den Text baut das Geraet selbst.
+    //  - Geraete: nur das EIGENE Dokument anlegen/aendern/loeschen. Die
+    //    24-stellige Nummer kennt nur das Geraet; lesen/auflisten nie.
+    //  - Absender (GitHub-Zeitplan, eigenes Konto absender@rieb-spesen.de):
+    //    auflisten, "gesendet" setzen, abgelaufene Adressen loeschen.
+    //    Das Konto darf NIE geloescht werden (sonst koennte ein anderer die
+    //    Adresse neu registrieren und die Liste lesen).
+    function istAbsender() {
+      return request.auth != null && request.auth.token.email == "absender@rieb-spesen.de";
+    }
+    function mitteilungGueltig(d) {
+      return d.keys().hasOnly(["endpoint", "p256dh", "auth", "plan", "stand", "gesendet"])
+          && d.endpoint is string && d.endpoint.size() < 700
+          // Apple: "allow URLs from any subdomain of push.apple.com" (Apple-Doku
+          // "Sending web push notifications", nachgesehen 11.10.2026)
+          && d.endpoint.matches("https://(([a-z0-9-]+[.])*push[.]apple[.]com|fcm[.]googleapis[.]com|updates[.]push[.]services[.]mozilla[.]com|[a-z0-9.-]+[.]notify[.]windows[.]com)/.+")
+          && d.p256dh is string && d.p256dh.size() < 200
+          && d.auth is string && d.auth.size() < 60
+          && d.plan is string && d.plan.size() < 3000 && d.plan.matches("[0-9@,-]*")
+          && d.get("stand", "") is string && d.get("gesendet", "") is string;
+    }
+    match /mitteilungen/{id} {
+      allow get: if false;
+      allow list: if istAbsender();
+      allow create, update: if id.matches("[A-Za-z0-9]{24}") && mitteilungGueltig(request.resource.data);
+      allow update: if istAbsender() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["gesendet"]);
+      allow delete: if true;
+    }
+
+    // Alles andere ist gesperrt.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
